@@ -39,8 +39,9 @@ export function filterTradesByRule(trades: TradeRow[], rule: StrategyRule): Trad
 
   // Filter by instrument
   if (rule.instrument) {
+    const instrument = rule.instrument.toUpperCase();
     filtered = filtered.filter(t => 
-      t.symbol.toUpperCase() === rule.instrument.toUpperCase()
+      t.symbol.toUpperCase() === instrument
     );
   }
 
@@ -74,10 +75,11 @@ export function filterTradesByRule(trades: TradeRow[], rule: StrategyRule): Trad
 
   // Filter by max holding time
   if (rule.maxHoldingTime) {
+    const maxHoldingTime = rule.maxHoldingTime;
     filtered = filtered.filter(t => {
       const holdingTimeMs = t.close_time.getTime() - t.open_time.getTime();
       const holdingTimeMinutes = holdingTimeMs / (1000 * 60);
-      return holdingTimeMinutes <= rule.maxHoldingTime;
+      return holdingTimeMinutes <= maxHoldingTime;
     });
   }
 

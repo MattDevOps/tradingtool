@@ -190,7 +190,9 @@ export function autoDetectColumns(csvData: string[][]): DetectedColumns {
       .sort((a, b) => b.score - a.score);
 
     if (candidates.length > 0 && candidates[0].score > 0.3) { // Minimum confidence threshold
-      detected[role] = candidates[0].index;
+      if (role !== 'unknown') {
+        (detected as any)[role] = candidates[0].index;
+      }
       usedColumns.add(candidates[0].index);
     }
   });
@@ -202,7 +204,9 @@ export function autoDetectColumns(csvData: string[][]): DetectedColumns {
       .sort((a, b) => b.score - a.score);
 
     if (candidates.length > 0 && candidates[0].score > 0.5) {
-      detected[role] = candidates[0].index;
+      if (role !== 'unknown') {
+        (detected as any)[role] = candidates[0].index;
+      }
       usedColumns.add(candidates[0].index);
     }
   });

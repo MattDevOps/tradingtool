@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface StrategyRule {
@@ -11,7 +11,7 @@ interface StrategyRule {
   maxHoldingTime?: number;
 }
 
-export default function RuleBuilderPage() {
+function RuleBuilderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const uploadId = searchParams.get('uploadId');
@@ -204,5 +204,13 @@ export default function RuleBuilderPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function RuleBuilderPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+      <RuleBuilderContent />
+    </Suspense>
   );
 }
