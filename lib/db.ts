@@ -1,16 +1,24 @@
 import { neon } from '@neondatabase/serverless';
 
-// Make database connection optional for initial deployment
-let sql: any = null;
+// Lazy initialization of sql connection
+let sqlInstance: any = null;
 
-if (process.env.DATABASE_URL) {
-  sql = neon(process.env.DATABASE_URL);
-} else {
-  // Create a template tag function that throws helpful errors
-  sql = (strings: TemplateStringsArray, ...values: any[]) => {
+function getSql() {
+  if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL environment variable is not set. Please configure your Neon database connection.');
-  };
+  }
+  
+  if (!sqlInstance) {
+    sqlInstance = neon(process.env.DATABASE_URL);
+  }
+  
+  return sqlInstance;
 }
+
+// Export sql as a template tag function that uses lazy initialization
+const sql = (strings: TemplateStringsArray, ...values: any[]) => {
+  return getSql()(strings, ...values);
+};
 
 export { sql };
 
