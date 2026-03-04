@@ -13,9 +13,9 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="Strategy Reality Check"
-                width={180}
-                height={40}
-                className="h-8 w-auto"
+                width={240}
+                height={60}
+                className="h-12 md:h-14 w-auto"
                 priority
               />
             </Link>
@@ -44,9 +44,9 @@ export default function Home() {
             <span className="text-gray-700">— or just luck?</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-800 mb-10 max-w-2xl mx-auto leading-relaxed">
             Upload your ThinkOrSwim trade history and get an instant statistical analysis. 
-            <span className="font-semibold text-gray-800"> Free, fast, and no setup required.</span>
+            <span className="font-semibold text-gray-900"> Free, fast, and no setup required.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
