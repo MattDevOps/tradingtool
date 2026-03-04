@@ -54,8 +54,28 @@ export async function POST(request: NextRequest) {
       quantity: row.quantity ? parseInt(row.quantity, 10) : undefined,
     }));
 
+    // Normalize rule for analysis (handle date range separately)
+    const normalizedRule: StrategyRule = {
+      instrument: rule.instrument,
+      direction: rule.direction,
+      timeWindowStart: rule.timeWindowStart,
+      timeWindowEnd: rule.timeWindowEnd,
+      maxHoldingTime: rule.maxHoldingTime,
+    };
+    
+    // Apply date range filter if provided
+    let filteredTrades = trades;
+    if (rule.startDate || rule.endDate) {
+      filteredTrades = trades.filter(t => {
+        const tradeDate = t.open_time.toISOString().split('T')[0];
+        if (rule.startDate && tradeDate < rule.startDate) return false;
+        if (rule.endDate && tradeDate > rule.endDate) return false;
+        return true;
+      });
+    }
+    
     // Analyze strategy
-    const result = analyzeStrategy(trades, rule as StrategyRule);
+    const result = analyzeStrategy(filteredTrades, normalizedRule);
 
     // Store email if provided
     let userId = null;

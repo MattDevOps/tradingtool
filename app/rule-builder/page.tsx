@@ -1,26 +1,46 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useDebounce } from '@/lib/hooks';
 
-interface StrategyRule {
-  instrument?: string;
-  timeWindowStart?: string;
-  timeWindowEnd?: string;
-  direction?: 'LONG' | 'SHORT' | 'BOTH';
-  maxHoldingTime?: number;
+interface SymbolStat {
+  symbol: string;
+  count: number;
 }
 
-function RuleBuilderContent() {
+interface StrategyRuleState {
+  symbol: string | null;
+  direction: 'LONG' | 'SHORT' | 'BOTH';
+  startDate: string | null;
+  endDate: string | null;
+  maxHoldingMinutes: number | null;
+}
+
+function StrategyCheckContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const uploadId = searchParams.get('uploadId');
 
-  const [rule, setRule] = useState<StrategyRule>({
+  const [rule, setRule] = useState<StrategyRuleState>({
+    symbol: null,
     direction: 'BOTH',
+    startDate: null,
+    endDate: null,
+    maxHoldingMinutes: null,
   });
+
+  const [symbols, setSymbols] = useState<SymbolStat[]>([]);
+  const [totalTrades, setTotalTrades] = useState<number>(0);
+  const [matchCount, setMatchCount] = useState<number | null>(null);
+  const [isLoadingCount, setIsLoadingCount] = useState(false);
+  const [isLoadingSymbols, setIsLoadingSymbols] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  // Debounce rule changes for preview count
+  const debouncedRule = useDebounce(rule, 400);
 
   useEffect(() => {
     if (!uploadId) {
@@ -28,9 +48,73 @@ function RuleBuilderContent() {
     }
   }, [uploadId, router]);
 
+  // Fetch symbols list
+  useEffect(() => {
+    if (!uploadId) return;
+
+    setIsLoadingSymbols(true);
+    fetch(`/api/uploads/${uploadId}/symbols`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSymbols(data);
+          const total = data.reduce((sum, s) => sum + s.count, 0);
+          setTotalTrades(total);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching symbols:', err);
+        setError('Failed to load symbols');
+      })
+      .finally(() => {
+        setIsLoadingSymbols(false);
+      });
+  }, [uploadId]);
+
+  // Fetch preview count when rule changes
+  useEffect(() => {
+    if (!uploadId) return;
+
+    setIsLoadingCount(true);
+    fetch('/api/strategy/preview-count', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uploadId,
+        rule: {
+          instrument: rule.symbol || undefined,
+          direction: rule.direction,
+          timeWindowStart: undefined,
+          timeWindowEnd: undefined,
+          maxHoldingTime: rule.maxHoldingMinutes || undefined,
+          startDate: rule.startDate || undefined,
+          endDate: rule.endDate || undefined,
+        },
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setMatchCount(data.count ?? 0);
+      })
+      .catch(err => {
+        console.error('Error fetching preview count:', err);
+        setMatchCount(null);
+      })
+      .finally(() => {
+        setIsLoadingCount(false);
+      });
+  }, [uploadId, debouncedRule]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadId) return;
+
+    if (matchCount === 0) {
+      setError('No trades match this rule. Please adjust your filters.');
+      return;
+    }
 
     setAnalyzing(true);
     setError(null);
@@ -43,7 +127,15 @@ function RuleBuilderContent() {
         },
         body: JSON.stringify({
           uploadId,
-          rule,
+          rule: {
+            instrument: rule.symbol || undefined,
+            direction: rule.direction,
+            timeWindowStart: undefined,
+            timeWindowEnd: undefined,
+            maxHoldingTime: rule.maxHoldingMinutes || undefined,
+            startDate: rule.startDate || undefined,
+            endDate: rule.endDate || undefined,
+          },
         }),
       });
 
@@ -75,8 +167,15 @@ function RuleBuilderContent() {
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-2xl">
+        {/* ThinkOrSwim limitation notice */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            Currently supports ThinkOrSwim trade statements. More brokers coming soon.
+          </p>
+        </div>
+
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Define Your Strategy Rule
+          Check one simple strategy
         </h1>
 
         {error && (
@@ -86,120 +185,156 @@ function RuleBuilderContent() {
         )}
 
         <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-8">
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Instrument / Symbol (optional)
-              </label>
-              <input
-                type="text"
-                value={rule.instrument || ''}
-                onChange={(e) => setRule({ ...rule, instrument: e.target.value || undefined })}
-                placeholder="e.g., ES, NQ, BTC"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Time Window (optional)
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Start</label>
-                  <input
-                    type="time"
-                    value={rule.timeWindowStart || ''}
-                    onChange={(e) => setRule({ ...rule, timeWindowStart: e.target.value || undefined })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">End</label>
-                  <input
-                    type="time"
-                    value={rule.timeWindowEnd || ''}
-                    onChange={(e) => setRule({ ...rule, timeWindowEnd: e.target.value || undefined })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Direction
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    value="LONG"
-                    checked={rule.direction === 'LONG'}
-                    onChange={(e) => setRule({ ...rule, direction: e.target.value as 'LONG' })}
-                    className="mr-2"
-                  />
-                  Long
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    value="SHORT"
-                    checked={rule.direction === 'SHORT'}
-                    onChange={(e) => setRule({ ...rule, direction: e.target.value as 'SHORT' })}
-                    className="mr-2"
-                  />
-                  Short
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    value="BOTH"
-                    checked={rule.direction === 'BOTH'}
-                    onChange={(e) => setRule({ ...rule, direction: e.target.value as 'BOTH' })}
-                    className="mr-2"
-                  />
-                  Both
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Max Holding Time (optional)
-              </label>
-              <div className="flex gap-4">
-                <input
-                  type="number"
-                  value={rule.maxHoldingTime || ''}
-                  onChange={(e) => setRule({ ...rule, maxHoldingTime: e.target.value ? parseInt(e.target.value) : undefined })}
-                  placeholder="15"
-                  min="1"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                <select
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  defaultValue="minutes"
-                >
-                  <option value="minutes">minutes</option>
-                  <option value="hours">hours</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <button
-              type="submit"
-              disabled={analyzing}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Instrument Selector */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Instrument (optional)
+            </label>
+            <select
+              value={rule.symbol || ''}
+              onChange={(e) => setRule({ ...rule, symbol: e.target.value || null })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              disabled={isLoadingSymbols}
             >
-              {analyzing ? 'Analyzing...' : 'Run Check → Generate Stats'}
-            </button>
+              <option value="">
+                {isLoadingSymbols ? 'Loading...' : `All instruments (${totalTrades} trades)`}
+              </option>
+              {symbols.map((stat) => (
+                <option key={stat.symbol} value={stat.symbol}>
+                  {stat.symbol} ({stat.count} trades)
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Choose from instruments found in your uploaded file.
+            </p>
           </div>
 
+          {/* Direction Selector */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Trade direction
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRule({ ...rule, direction: 'LONG' })}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  rule.direction === 'LONG'
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Long
+              </button>
+              <button
+                type="button"
+                onClick={() => setRule({ ...rule, direction: 'SHORT' })}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  rule.direction === 'SHORT'
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Short
+              </button>
+              <button
+                type="button"
+                onClick={() => setRule({ ...rule, direction: 'BOTH' })}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  rule.direction === 'BOTH'
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Both
+              </button>
+            </div>
+          </div>
+
+          {/* Match Preview */}
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Matches</span>
+              {isLoadingCount ? (
+                <span className="text-lg font-semibold text-gray-500">Checking...</span>
+              ) : (
+                <span className="text-lg font-semibold text-primary">
+                  {matchCount !== null ? matchCount : '—'} trades
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Filters */}
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen(!advancedOpen)}
+              className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <span>{advancedOpen ? '▾' : '▸'} Advanced filters</span>
+            </button>
+
+            {advancedOpen && (
+              <div className="mt-4 space-y-4 pl-4 border-l-2 border-gray-200">
+                {/* Date Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date range (optional)
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Start date</label>
+                      <input
+                        type="date"
+                        value={rule.startDate || ''}
+                        onChange={(e) => setRule({ ...rule, startDate: e.target.value || null })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">End date</label>
+                      <input
+                        type="date"
+                        value={rule.endDate || ''}
+                        onChange={(e) => setRule({ ...rule, endDate: e.target.value || null })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Max Holding Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Max holding time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={rule.maxHoldingMinutes || ''}
+                    onChange={(e) => setRule({ ...rule, maxHoldingMinutes: e.target.value ? parseInt(e.target.value) : null })}
+                    placeholder="e.g., 15"
+                    min="1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* CTA Button */}
+          <button
+            type="submit"
+            disabled={analyzing || isLoadingCount || matchCount === 0}
+            className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {analyzing ? 'Analyzing...' : 'Test this strategy'}
+          </button>
+
+          {/* Footnote */}
           <p className="text-sm text-gray-600 mt-4 text-center">
-            Note: You can skip optional fields for a general check of all your trades.
+            You can skip all filters to test your entire trading history.
           </p>
         </form>
       </main>
@@ -207,10 +342,10 @@ function RuleBuilderContent() {
   );
 }
 
-export default function RuleBuilderPage() {
+export default function StrategyCheckPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
-      <RuleBuilderContent />
+      <StrategyCheckContent />
     </Suspense>
   );
 }
