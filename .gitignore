@@ -22,12 +22,41 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Local env files
-.env*.local
+# Environment variables and secrets
 .env
-
-# But allow .env.example
+.env*.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+*.env
 !.env.example
+
+# Secrets and API keys
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+id_rsa*
+id_dsa*
+*.ppk
+
+# Database credentials
+db.credentials
+database.json
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+config.local.*
+*.local.json
+secrets.json
+credentials.json
 
 # Vercel
 .vercel

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -8,9 +9,16 @@ export default function Home() {
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Strategy Reality Check
-            </div>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Strategy Reality Check"
+                width={180}
+                height={40}
+                className="h-8 w-auto"
+                priority
+              />
+            </Link>
             <div className="text-sm text-gray-600">
               {/* Future: Sign In / Sign Up */}
             </div>
