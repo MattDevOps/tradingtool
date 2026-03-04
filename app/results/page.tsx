@@ -15,10 +15,14 @@ interface StrategyResult {
     averageLoss: number;
   };
   probabilityRandom: number;
-  verdict: 'LIKELY_REAL_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
+  verdict: 'LIKELY_POSITIVE_EDGE' | 'LIKELY_NEGATIVE_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
   stabilityCheck: {
-    firstHalf: any;
-    secondHalf: any;
+    firstHalf: {
+      expectedValue: number;
+    };
+    secondHalf: {
+      expectedValue: number;
+    };
     degradation: boolean;
   };
 }
@@ -110,9 +114,44 @@ function ResultsContent() {
     );
   }
 
-  const isRealEdge = result.verdict === 'LIKELY_REAL_EDGE';
-  const verdictColor = isRealEdge ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
-  const verdictText = isRealEdge ? '✅ Likely real edge' : '❌ Not statistically reliable';
+  // Determine verdict display
+  let verdictConfig: {
+    icon: string;
+    text: string;
+    explanation: string;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+  };
+
+  if (result.verdict === 'LIKELY_POSITIVE_EDGE') {
+    verdictConfig = {
+      icon: '✅',
+      text: 'Likely positive edge',
+      explanation: 'This setup shows statistically stable profitability.',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      textColor: 'text-green-800',
+    };
+  } else if (result.verdict === 'LIKELY_NEGATIVE_EDGE') {
+    verdictConfig = {
+      icon: '🟠',
+      text: 'Likely losing strategy',
+      explanation: 'This setup shows a consistent negative expectancy.',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      textColor: 'text-orange-800',
+    };
+  } else {
+    verdictConfig = {
+      icon: '🔴',
+      text: 'Not statistically reliable',
+      explanation: 'The results could be due to random chance.',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      textColor: 'text-red-800',
+    };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,59 +167,75 @@ function ResultsContent() {
 
       <main className="container mx-auto px-4 py-12 max-w-3xl">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Strategy Analysis Results
+          Your strategy check
         </h1>
 
         <div className="bg-white border border-gray-200 rounded-lg p-8 mb-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-medium">Expected value:</span>
-              <span className="text-2xl font-bold text-primary">
-                {result.metrics.expectedValue >= 0 ? '+' : ''}
-                {result.metrics.expectedValue.toFixed(2)}R
-              </span>
+          <div className="space-y-6">
+            {/* Verdict Box - Moved to top */}
+            <div className={`p-6 rounded-lg border-2 ${verdictConfig.bgColor} ${verdictConfig.borderColor}`}>
+              <p className={`text-2xl font-bold text-center mb-2 ${verdictConfig.textColor}`}>
+                {verdictConfig.icon} {verdictConfig.text}
+              </p>
+              <p className={`text-sm text-center ${verdictConfig.textColor} opacity-90`}>
+                {verdictConfig.explanation}
+              </p>
+              <p className="text-xs text-center text-gray-600 mt-3">
+                Based on {result.metrics.totalTrades} trades
+              </p>
             </div>
 
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-medium">Win rate:</span>
-              <span className="text-xl font-semibold">
-                {(result.metrics.winRate * 100).toFixed(1)}%
-              </span>
-            </div>
+            {/* Key Metrics */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-medium">Expected value:</span>
+                <span className={`text-2xl font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {result.metrics.expectedValue >= 0 ? '+' : ''}
+                  {result.metrics.expectedValue.toFixed(2)}R
+                </span>
+              </div>
 
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-medium">Profit factor:</span>
-              <span className="text-xl font-semibold">
-                {result.metrics.profitFactor.toFixed(2)}
-              </span>
-            </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-medium">Win rate:</span>
+                <span className="text-xl font-semibold text-gray-900">
+                  {(result.metrics.winRate * 100).toFixed(1)}%
+                </span>
+              </div>
 
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-medium">Probability of randomness:</span>
-              <span className="text-xl font-semibold">
-                {(result.probabilityRandom * 100).toFixed(1)}%
-              </span>
-            </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-medium">Profit factor:</span>
+                <span className="text-xl font-semibold text-gray-900">
+                  {result.metrics.profitFactor.toFixed(2)}
+                </span>
+              </div>
 
-            <div className="pt-4 border-t border-gray-200">
-              <div className={`p-4 rounded-lg border-2 ${verdictColor}`}>
-                <p className="text-xl font-bold text-center">{verdictText}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-gray-700 font-medium">Probability of randomness:</span>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Lower is better. Below 20% usually indicates a real edge.
+                  </p>
+                </div>
+                <span className="text-xl font-semibold text-gray-900">
+                  {(result.probabilityRandom * 100).toFixed(1)}%
+                </span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-2">Stability Check:</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            {/* Stability Check */}
+            <div className="pt-6 border-t border-gray-200">
+              <p className="text-sm font-medium text-gray-700 mb-3">Stability Check:</p>
+              <div className="grid grid-cols-2 gap-4 mb-2">
                 <div>
-                  <span className="text-gray-600">First half:</span>
-                  <span className="ml-2 font-semibold">
+                  <span className="text-gray-600 text-sm">First half EV:</span>
+                  <span className={`ml-2 font-semibold ${result.stabilityCheck.firstHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.firstHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.firstHalf.expectedValue.toFixed(2)}R
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Second half:</span>
-                  <span className="ml-2 font-semibold">
+                  <span className="text-gray-600 text-sm">Second half EV:</span>
+                  <span className={`ml-2 font-semibold ${result.stabilityCheck.secondHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.secondHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.secondHalf.expectedValue.toFixed(2)}R
                   </span>
@@ -193,17 +248,18 @@ function ResultsContent() {
               )}
             </div>
 
-            <div className="pt-4 border-t border-gray-200 text-sm text-gray-600">
-              <p>Total trades analyzed: {result.metrics.totalTrades}</p>
+            {/* Additional Details */}
+            <div className="pt-6 border-t border-gray-200 text-sm text-gray-600">
               <p>Winning trades: {result.metrics.winningTrades} | Losing trades: {result.metrics.losingTrades}</p>
             </div>
           </div>
         </div>
 
+        {/* Email Gate */}
         {!emailSubmitted && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
             <p className="text-sm font-medium text-gray-700 mb-4">
-              Enter your email to unlock full report / PDF download
+              Get your full report (PDF + breakdown)
             </p>
             <form onSubmit={handleEmailSubmit} className="flex gap-2">
               <input
@@ -218,9 +274,15 @@ function ResultsContent() {
                 type="submit"
                 className="bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-2 rounded-lg transition-colors"
               >
-                Submit
+                Get Report
               </button>
             </form>
+            <p className="text-xs text-gray-500 mt-3 text-center">
+              Want deeper journaling and performance tracking?{' '}
+              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Try InsightTrader →
+              </a>
+            </p>
           </div>
         )}
 

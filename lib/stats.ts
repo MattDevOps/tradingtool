@@ -23,7 +23,7 @@ export interface StrategyMetrics {
 export interface StrategyResult {
   metrics: StrategyMetrics;
   probabilityRandom: number; // 0-1
-  verdict: 'LIKELY_REAL_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
+  verdict: 'LIKELY_POSITIVE_EDGE' | 'LIKELY_NEGATIVE_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
   stabilityCheck: {
     firstHalf: StrategyMetrics;
     secondHalf: StrategyMetrics;
@@ -224,8 +224,19 @@ export function analyzeStrategy(trades: TradeRow[], rule: StrategyRule): Strateg
   const probabilityRandom = monteCarloTest(filteredTrades, metrics.expectedValue);
   const stability = stabilityCheck(filteredTrades);
 
-  const verdict: 'LIKELY_REAL_EDGE' | 'NOT_STATISTICALLY_RELIABLE' = 
-    probabilityRandom < 0.2 ? 'LIKELY_REAL_EDGE' : 'NOT_STATISTICALLY_RELIABLE';
+  // Determine verdict based on statistical significance AND direction of edge
+  let verdict: 'LIKELY_POSITIVE_EDGE' | 'LIKELY_NEGATIVE_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
+  
+  if (probabilityRandom < 0.2) {
+    // Statistically significant - check direction
+    if (metrics.expectedValue > 0) {
+      verdict = 'LIKELY_POSITIVE_EDGE';
+    } else {
+      verdict = 'LIKELY_NEGATIVE_EDGE';
+    }
+  } else {
+    verdict = 'NOT_STATISTICALLY_RELIABLE';
+  }
 
   return {
     metrics,
