@@ -154,98 +154,126 @@ function ResultsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-xl font-bold text-gray-900">
+            <a href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Strategy Reality Check
             </a>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-3xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Your strategy check
-        </h1>
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+            Your strategy check
+          </h1>
+          <p className="text-lg text-gray-600">
+            Statistical analysis of your trading strategy
+          </p>
+        </div>
 
         {/* Main Results Card */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 mb-6">
-          <div className="space-y-6">
+        <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-soft p-8 md:p-10 mb-6">
+          <div className="space-y-8">
             {/* Verdict Box - Prominent at top */}
-            <div className={`p-6 rounded-lg border-2 ${verdictConfig.bgColor} ${verdictConfig.borderColor} shadow-sm`}>
-              <p className={`text-2xl font-bold text-center mb-2 ${verdictConfig.textColor}`}>
-                {verdictConfig.icon} {verdictConfig.text}
-              </p>
-              <p className={`text-sm text-center ${verdictConfig.textColor} opacity-90 mb-3`}>
-                {verdictConfig.explanation}
-              </p>
-              <p className="text-xs text-center text-gray-600 font-medium">
-                Based on {result.metrics.totalTrades} trades
-              </p>
+            <div className={`p-8 rounded-xl border-2 ${verdictConfig.bgColor} ${verdictConfig.borderColor} shadow-lg`}>
+              <div className="text-center">
+                <p className={`text-4xl mb-3`}>
+                  {verdictConfig.icon}
+                </p>
+                <p className={`text-3xl font-bold mb-3 ${verdictConfig.textColor}`}>
+                  {verdictConfig.text}
+                </p>
+                <p className={`text-base ${verdictConfig.textColor} opacity-90 mb-4`}>
+                  {verdictConfig.explanation}
+                </p>
+                <div className="inline-block px-4 py-2 bg-white/60 rounded-lg">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Based on <span className="text-indigo-600">{result.metrics.totalTrades}</span> trades
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Key Metrics - Better visual hierarchy */}
             <div className="space-y-4 pt-4">
-              <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                <span className="text-gray-700 font-medium">Expected value:</span>
-                <span className={`text-2xl font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex justify-between items-center py-4 px-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl border border-gray-200/50">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">💰</span>
+                  <span className="text-gray-800 font-semibold">Expected value:</span>
+                </div>
+                <span className={`text-3xl font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {result.metrics.expectedValue >= 0 ? '+' : ''}
                   {result.metrics.expectedValue.toFixed(2)}R
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                <span className="text-gray-700 font-medium">Win rate:</span>
-                <span className="text-xl font-semibold text-gray-900">
+              <div className="flex justify-between items-center py-4 px-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl border border-gray-200/50">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📊</span>
+                  <span className="text-gray-800 font-semibold">Win rate:</span>
+                </div>
+                <span className="text-2xl font-bold text-gray-900">
                   {(result.metrics.winRate * 100).toFixed(1)}%
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                <span className="text-gray-700 font-medium">Profit factor:</span>
-                <span className="text-xl font-semibold text-gray-900">
+              <div className="flex justify-between items-center py-4 px-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl border border-gray-200/50">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">⚖️</span>
+                  <span className="text-gray-800 font-semibold">Profit factor:</span>
+                </div>
+                <span className="text-2xl font-bold text-gray-900">
                   {result.metrics.profitFactor.toFixed(2)}
                 </span>
               </div>
 
-              <div className="flex justify-between items-start py-3">
+              <div className="flex justify-between items-start py-4 px-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 rounded-xl border border-gray-200/50">
                 <div className="flex-1">
-                  <span className="text-gray-700 font-medium block mb-1">Probability of randomness:</span>
-                  <p className="text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">🎲</span>
+                    <span className="text-gray-800 font-semibold">Probability of randomness:</span>
+                  </div>
+                  <p className="text-xs text-gray-600 ml-11">
                     Lower is better. Below 20% usually indicates a real edge.
                   </p>
                 </div>
-                <span className="text-xl font-semibold text-gray-900 ml-4">
+                <span className="text-2xl font-bold text-gray-900 ml-4">
                   {(result.probabilityRandom * 100).toFixed(1)}%
                 </span>
               </div>
             </div>
 
             {/* Stability Check - Better styling */}
-            <div className="pt-6 border-t border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-4">Stability Check</p>
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <span className="text-xs text-gray-600 block mb-1">First half EV:</span>
-                  <span className={`text-lg font-bold ${result.stabilityCheck.firstHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className="pt-6 border-t-2 border-gray-200">
+              <div className="flex items-center gap-2 mb-5">
+                <span className="text-2xl">📈</span>
+                <p className="text-lg font-bold text-gray-800">Stability Check</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200/50 shadow-sm">
+                  <span className="text-xs font-semibold text-gray-700 block mb-2 uppercase tracking-wide">First half EV</span>
+                  <span className={`text-2xl font-bold ${result.stabilityCheck.firstHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.firstHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.firstHalf.expectedValue.toFixed(2)}R
                   </span>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <span className="text-xs text-gray-600 block mb-1">Second half EV:</span>
-                  <span className={`text-lg font-bold ${result.stabilityCheck.secondHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200/50 shadow-sm">
+                  <span className="text-xs font-semibold text-gray-700 block mb-2 uppercase tracking-wide">Second half EV</span>
+                  <span className={`text-2xl font-bold ${result.stabilityCheck.secondHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.secondHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.secondHalf.expectedValue.toFixed(2)}R
                   </span>
                 </div>
               </div>
               {result.stabilityCheck.degradation && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
-                  <p className="text-sm text-orange-800 font-medium">
-                    ⚠️ Performance degraded in second half
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-4 shadow-soft">
+                  <p className="text-sm text-orange-800 font-semibold flex items-center gap-2">
+                    <span className="text-lg">⚠️</span>
+                    Performance degraded in second half
                   </p>
                 </div>
               )}
@@ -269,29 +297,35 @@ function ResultsContent() {
 
         {/* Email Gate */}
         {!emailSubmitted && (
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6">
-            <p className="text-sm font-semibold text-gray-900 mb-4">
-              Get your full report (PDF + breakdown)
-            </p>
-            <form onSubmit={handleEmailSubmit} className="flex gap-2 mb-3">
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-soft p-8 mb-6">
+            <div className="text-center mb-6">
+              <span className="text-4xl mb-3 block">📧</span>
+              <p className="text-xl font-bold text-gray-900 mb-2">
+                Get your full report
+              </p>
+              <p className="text-sm text-gray-600">
+                PDF + detailed breakdown delivered to your inbox
+              </p>
+            </div>
+            <form onSubmit={handleEmailSubmit} className="flex gap-3 mb-4">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="flex-1 px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
               />
               <button
                 type="submit"
-                className="bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-2 rounded-lg transition-colors"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
               >
                 Get Report
               </button>
             </form>
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-gray-600 text-center">
               Want deeper journaling and performance tracking?{' '}
-              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 underline font-semibold">
                 Try InsightTrader →
               </a>
             </p>
@@ -299,15 +333,18 @@ function ResultsContent() {
         )}
 
         {emailSubmitted && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <p className="text-green-800 font-medium">Thank you! Check your email for the full report.</p>
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-6 shadow-soft">
+            <p className="text-green-800 font-semibold text-center flex items-center justify-center gap-2">
+              <span className="text-xl">✅</span>
+              Thank you! Check your email for the full report.
+            </p>
           </div>
         )}
 
         <div className="text-center">
           <a
             href="/"
-            className="text-primary hover:underline font-medium"
+            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors"
           >
             Check another strategy →
           </a>

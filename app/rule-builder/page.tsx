@@ -210,221 +210,284 @@ function StrategyCheckContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-xl font-bold text-gray-900">
+            <a href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Strategy Reality Check
             </a>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-2xl">
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
         {/* ThinkOrSwim limitation notice */}
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            Currently supports ThinkOrSwim trade statements. More brokers coming soon.
+        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/50 rounded-xl shadow-soft">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">ℹ️</span>
+            <p className="text-sm text-indigo-900">
+              <span className="font-semibold">Currently supports ThinkOrSwim trade statements.</span> More brokers coming soon.
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+            Define your strategy
+          </h1>
+          <p className="text-lg text-gray-600 max-w-xl mx-auto">
+            Filter your trades to test a specific setup. All fields are optional—leave them blank to analyze everything.
           </p>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Check one simple strategy
-        </h1>
-
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl shadow-soft">
+            <p className="text-red-800 font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-8">
-          {/* Instrument Selector */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Instrument (optional)
-            </label>
-            <select
-              value={rule.symbol || ''}
-              onChange={(e) => setRule({ ...rule, symbol: e.target.value || null })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
-              disabled={isLoadingSymbols}
-            >
-              <option value="" className="text-gray-900">
-                {isLoadingSymbols ? 'Loading...' : 'All instruments'}
-              </option>
-              {symbols.map((stat) => (
-                <option key={stat.symbol} value={stat.symbol} className="text-gray-900">
-                  {stat.symbol}
+        <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 md:p-10 shadow-soft">
+          <div className="space-y-8">
+            {/* Instrument Selector */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">📈</span>
+                <span>Which instrument?</span>
+                <span className="text-xs font-normal text-gray-500">(optional)</span>
+              </label>
+              <select
+                value={rule.symbol || ''}
+                onChange={(e) => setRule({ ...rule, symbol: e.target.value || null })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm hover:shadow-md"
+                disabled={isLoadingSymbols}
+              >
+                <option value="" className="text-gray-900">
+                  {isLoadingSymbols ? 'Loading instruments...' : 'All instruments'}
                 </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              Choose from instruments found in your uploaded file.
-            </p>
-          </div>
-
-          {/* Direction Selector */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Trade direction
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setRule({ ...rule, direction: 'LONG' })}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  rule.direction === 'LONG'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Long
-              </button>
-              <button
-                type="button"
-                onClick={() => setRule({ ...rule, direction: 'SHORT' })}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  rule.direction === 'SHORT'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Short
-              </button>
-              <button
-                type="button"
-                onClick={() => setRule({ ...rule, direction: 'BOTH' })}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  rule.direction === 'BOTH'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Both
-              </button>
+                {symbols.map((stat) => (
+                  <option key={stat.symbol} value={stat.symbol} className="text-gray-900">
+                    {stat.symbol}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-2 ml-1">
+                Choose a specific ticker or analyze all instruments together
+              </p>
             </div>
-          </div>
 
-          {/* Match Preview */}
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
-            {isLoadingCount ? (
-              <span className="text-sm text-gray-600">Checking...</span>
-            ) : (
-              <>
-                <div>
-                  <span className="text-sm font-medium text-gray-700">
-                    This rule matches{' '}
-                    <span className="text-lg font-semibold text-primary">
-                      {matchCount !== null ? matchCount : '—'}
-                    </span>{' '}
-                    trades
-                  </span>
-                  {matchBreakdown && matchCount !== null && matchCount > 0 && (
-                    <div className="text-xs text-gray-600 mt-1">
-                      {matchBreakdown.longs} longs · {matchBreakdown.shorts} shorts
-                    </div>
-                  )}
+            {/* Direction Selector */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">↕️</span>
+                <span>Trade direction</span>
+                <span className="text-xs font-normal text-gray-500">(optional)</span>
+              </label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRule({ ...rule, direction: 'LONG' })}
+                  className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
+                    rule.direction === 'LONG'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                  }`}
+                >
+                  Long only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRule({ ...rule, direction: 'SHORT' })}
+                  className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
+                    rule.direction === 'SHORT'
+                      ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                  }`}
+                >
+                  Short only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRule({ ...rule, direction: 'BOTH' })}
+                  className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
+                    rule.direction === 'BOTH'
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                  }`}
+                >
+                  Both
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 ml-1">
+                Filter by long positions, short positions, or include both
+              </p>
+            </div>
+
+            {/* Live Preview - Redesigned */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200/50 rounded-xl p-6 shadow-soft">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl">🔍</span>
+                <h3 className="text-lg font-bold text-gray-900">Live Preview</h3>
+              </div>
+              
+              {isLoadingCount ? (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-500 border-t-transparent"></div>
+                  <span className="text-sm">Calculating matches...</span>
                 </div>
-
-                {/* Sample Trades Preview (Read-only) */}
-                {previewTrades.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-300">
-                    <p className="text-xs font-medium text-gray-700 mb-2">Sample of matched trades:</p>
-                    <div className="space-y-1">
-                      {previewTrades.map((trade, idx) => (
-                        <div key={idx} className="text-xs text-gray-600 font-mono flex justify-between items-center">
-                          <span>
-                            {trade.date} {trade.symbol} {trade.side}
-                          </span>
-                          <span className={trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
-                            {trade.pnl >= 0 ? '+' : ''}{trade.rMultiple}R
-                          </span>
-                        </div>
-                      ))}
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-700 mb-2">
+                      Based on your current filters:
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        {matchCount !== null ? matchCount : '—'}
+                      </span>
+                      <span className="text-lg text-gray-600 font-medium">trades will be analyzed</span>
                     </div>
-                    {matchCount !== null && matchCount > previewTrades.length && (
-                      <p className="text-xs text-gray-500 mt-2 italic">
-                        Showing {previewTrades.length} of {matchCount} trades
-                      </p>
+                    {matchBreakdown && matchCount !== null && matchCount > 0 && (
+                      <div className="mt-3 flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                          <span className="text-gray-700 font-medium">{matchBreakdown.longs} longs</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                          <span className="text-gray-700 font-medium">{matchBreakdown.shorts} shorts</span>
+                        </div>
+                      </div>
                     )}
                   </div>
-                )}
-              </>
-            )}
-          </div>
 
-          {/* Advanced Filters */}
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={() => setAdvancedOpen(!advancedOpen)}
-              className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <span>{advancedOpen ? '▾' : '▸'} Advanced filters</span>
-            </button>
-
-            {advancedOpen && (
-              <div className="mt-4 space-y-4 pl-4 border-l-2 border-gray-200">
-                {/* Date Range */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date range (optional)
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-gray-600 mb-1">Start date</label>
-                      <input
-                        type="date"
-                        value={rule.startDate || ''}
-                        onChange={(e) => setRule({ ...rule, startDate: e.target.value || null })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
-                      />
+                  {/* Sample Trades Preview */}
+                  {previewTrades.length > 0 && (
+                    <div className="mt-5 pt-5 border-t border-indigo-200/50">
+                      <p className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Sample trades</p>
+                      <div className="space-y-2">
+                        {previewTrades.map((trade, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-2 bg-white/60 rounded-lg text-xs font-mono">
+                            <span className="text-gray-700">
+                              {trade.date} <span className="font-semibold">{trade.symbol}</span> {trade.side}
+                            </span>
+                            <span className={`font-bold ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {trade.pnl >= 0 ? '+' : ''}{trade.rMultiple}R
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {matchCount !== null && matchCount > previewTrades.length && (
+                        <p className="text-xs text-gray-500 mt-3 text-center italic">
+                          Showing {previewTrades.length} of {matchCount} matching trades
+                        </p>
+                      )}
                     </div>
-                    <div>
-                      <label className="block text-xs text-gray-600 mb-1">End date</label>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Advanced Filters */}
+            <div className="border-t border-gray-200 pt-6">
+              <button
+                type="button"
+                onClick={() => setAdvancedOpen(!advancedOpen)}
+                className="w-full flex items-center justify-between p-4 text-sm font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚙️</span>
+                  <span>Advanced filters</span>
+                </div>
+                <span className={`text-xl transition-transform ${advancedOpen ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+
+              {advancedOpen && (
+                <div className="mt-4 space-y-6 pl-6 border-l-2 border-indigo-200">
+                  {/* Date Range */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <span className="text-base">📅</span>
+                      <span>Date range</span>
+                      <span className="text-xs font-normal text-gray-500">(optional)</span>
+                    </label>
+                    <p className="text-xs text-gray-600 mb-3 ml-7">
+                      Analyze trades from a specific time period. Useful for testing how your strategy performed in different market conditions.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 ml-7">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-2">Start date</label>
+                        <input
+                          type="date"
+                          value={rule.startDate || ''}
+                          onChange={(e) => setRule({ ...rule, startDate: e.target.value || null })}
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-2">End date</label>
+                        <input
+                          type="date"
+                          value={rule.endDate || ''}
+                          onChange={(e) => setRule({ ...rule, endDate: e.target.value || null })}
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Max Holding Time */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <span className="text-base">⏱️</span>
+                      <span>Maximum holding time</span>
+                      <span className="text-xs font-normal text-gray-500">(optional)</span>
+                    </label>
+                    <p className="text-xs text-gray-600 mb-3 ml-7">
+                      Filter trades by how long you held them. Useful for testing scalping strategies (short holds) or swing trading setups (longer holds). Enter the maximum minutes a trade was open.
+                    </p>
+                    <div className="ml-7">
                       <input
-                        type="date"
-                        value={rule.endDate || ''}
-                        onChange={(e) => setRule({ ...rule, endDate: e.target.value || null })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
+                        type="number"
+                        value={rule.maxHoldingMinutes || ''}
+                        onChange={(e) => setRule({ ...rule, maxHoldingMinutes: e.target.value ? parseInt(e.target.value) : null })}
+                        placeholder="e.g., 15 for 15 minutes"
+                        min="1"
+                        className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
                       />
+                      <div className="mt-2 text-xs text-gray-500 space-y-1">
+                        <p>💡 <strong>Examples:</strong></p>
+                        <p>• 5-15 minutes: Scalping/day trading</p>
+                        <p>• 30-60 minutes: Short-term swing</p>
+                        <p>• 240+ minutes: Longer swing trades</p>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                {/* Max Holding Time */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Max holding time (minutes) (optional)
-                  </label>
-                  <input
-                    type="number"
-                    value={rule.maxHoldingMinutes || ''}
-                    onChange={(e) => setRule({ ...rule, maxHoldingMinutes: e.target.value ? parseInt(e.target.value) : null })}
-                    placeholder="e.g., 15"
-                    min="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
-                  />
-                </div>
-              </div>
-            )}
+            {/* CTA Button */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={analyzing || isLoadingCount || matchCount === 0}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg"
+              >
+                {analyzing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    Analyzing strategy...
+                  </span>
+                ) : (
+                  '🚀 Analyze this strategy'
+                )}
+              </button>
+              <p className="text-sm text-gray-500 mt-4 text-center">
+                💡 <strong>Tip:</strong> Leave all filters blank to analyze your entire trading history
+              </p>
+            </div>
           </div>
-
-          {/* CTA Button */}
-          <button
-            type="submit"
-            disabled={analyzing || isLoadingCount || matchCount === 0}
-            className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {analyzing ? 'Analyzing...' : 'Test this strategy'}
-          </button>
-
-          {/* Footnote */}
-          <p className="text-sm text-gray-600 mt-4 text-center">
-            You can skip all filters to test your entire trading history.
-          </p>
         </form>
       </main>
     </div>
