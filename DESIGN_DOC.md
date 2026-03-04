@@ -17,13 +17,13 @@ Single-purpose tool that answers one question:
 **"Is this trading strategy real — or just luck?"**
 
 ### Core Promise
-- Upload closed trades from any broker (CSV)
+- Upload closed trades from ThinkOrSwim (CSV export)
 - Filter by a single strategy rule
 - Run statistical tests (Monte-Carlo, permutation tests)
 - Get a clear verdict instantly
 
 ### Target Audience
-**All traders:** self-funded, futures/options, crypto, prop-funded — anyone with a closed-trade CSV file.
+**ThinkOrSwim traders:** self-funded, futures/options traders using ThinkOrSwim platform.
 
 ### Pricing
 **Free MVP** — designed as a lead magnet and funnel to InsightTrader app.
@@ -39,7 +39,7 @@ Single-purpose tool that answers one question:
 ## 2. Core MVP Features
 
 ### 2.1 CSV Upload & Auto-Inference
-- Users upload any closed-trade CSV file
+- Users upload ThinkOrSwim closed-trade CSV export
 - **Auto-detect columns** using header normalization + value inference:
   - `open_time` → datetime parsing
   - `close_time` → datetime parsing

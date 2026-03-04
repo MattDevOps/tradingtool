@@ -4,7 +4,7 @@ A single-purpose tool that answers: **"Is your trading strategy real — or just
 
 ## Features
 
-- 📊 Upload closed-trade CSV files from any broker
+- 📊 Upload closed-trade CSV files from ThinkOrSwim
 - 🔍 Auto-detect columns (no manual mapping required)
 - 📈 Statistical analysis with Monte-Carlo simulation
 - ✅ Clear verdict on strategy validity
