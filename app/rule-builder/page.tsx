@@ -379,7 +379,7 @@ function StrategyCheckContent() {
                         type="date"
                         value={rule.startDate || ''}
                         onChange={(e) => setRule({ ...rule, startDate: e.target.value || null })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
                       />
                     </div>
                     <div>
@@ -388,7 +388,7 @@ function StrategyCheckContent() {
                         type="date"
                         value={rule.endDate || ''}
                         onChange={(e) => setRule({ ...rule, endDate: e.target.value || null })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
                       />
                     </div>
                   </div>
@@ -397,7 +397,7 @@ function StrategyCheckContent() {
                 {/* Max Holding Time */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Max holding time (minutes)
+                    Max holding time (minutes) (optional)
                   </label>
                   <input
                     type="number"
@@ -405,7 +405,7 @@ function StrategyCheckContent() {
                     onChange={(e) => setRule({ ...rule, maxHoldingMinutes: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="e.g., 15"
                     min="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
                   />
                 </div>
               </div>
