@@ -81,6 +81,12 @@ export default function UploadPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           Upload Your ThinkOrSwim Trade History
         </h1>
+        
+        <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            Currently supports ThinkOrSwim trade statements. More brokers coming soon.
+          </p>
+        </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">

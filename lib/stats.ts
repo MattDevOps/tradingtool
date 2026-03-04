@@ -45,7 +45,7 @@ export function filterTradesByRule(trades: TradeRow[], rule: StrategyRule): Trad
     );
   }
 
-  // Filter by time window
+  // Filter by time window (if provided as HH:MM format)
   if (rule.timeWindowStart || rule.timeWindowEnd) {
     filtered = filtered.filter(t => {
       const openHour = t.open_time.getHours();
@@ -67,6 +67,10 @@ export function filterTradesByRule(trades: TradeRow[], rule: StrategyRule): Trad
       return true;
     });
   }
+
+  // Filter by date range (if provided as date strings)
+  // Note: This is handled separately from time window for date-based filtering
+  // The rule builder will convert dates to time windows or we can add date filtering here
 
   // Filter by direction
   if (rule.direction && rule.direction !== 'BOTH') {
