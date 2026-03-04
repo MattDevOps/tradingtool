@@ -12,6 +12,8 @@ module.exports = {
           DEFAULT: '#3b82f6',
           dark: '#2563eb',
         },
+        // Alias for easier hover states
+        'primary-dark': '#2563eb',
         success: '#10b981',
         error: '#ef4444',
         warning: '#f59e0b',
