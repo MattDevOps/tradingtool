@@ -104,7 +104,7 @@ function ResultsContent() {
             <p className="text-red-800">{error || 'Failed to load results'}</p>
             <button
               onClick={() => router.push('/upload')}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded-lg"
+              className="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-colors"
             >
               Start Over
             </button>
@@ -170,24 +170,25 @@ function ResultsContent() {
           Your strategy check
         </h1>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-6">
+        {/* Main Results Card */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 mb-6">
           <div className="space-y-6">
-            {/* Verdict Box - Moved to top */}
-            <div className={`p-6 rounded-lg border-2 ${verdictConfig.bgColor} ${verdictConfig.borderColor}`}>
+            {/* Verdict Box - Prominent at top */}
+            <div className={`p-6 rounded-lg border-2 ${verdictConfig.bgColor} ${verdictConfig.borderColor} shadow-sm`}>
               <p className={`text-2xl font-bold text-center mb-2 ${verdictConfig.textColor}`}>
                 {verdictConfig.icon} {verdictConfig.text}
               </p>
-              <p className={`text-sm text-center ${verdictConfig.textColor} opacity-90`}>
+              <p className={`text-sm text-center ${verdictConfig.textColor} opacity-90 mb-3`}>
                 {verdictConfig.explanation}
               </p>
-              <p className="text-xs text-center text-gray-600 mt-3">
+              <p className="text-xs text-center text-gray-600 font-medium">
                 Based on {result.metrics.totalTrades} trades
               </p>
             </div>
 
-            {/* Key Metrics */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
+            {/* Key Metrics - Better visual hierarchy */}
+            <div className="space-y-4 pt-4">
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
                 <span className="text-gray-700 font-medium">Expected value:</span>
                 <span className={`text-2xl font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {result.metrics.expectedValue >= 0 ? '+' : ''}
@@ -195,73 +196,84 @@ function ResultsContent() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
                 <span className="text-gray-700 font-medium">Win rate:</span>
                 <span className="text-xl font-semibold text-gray-900">
                   {(result.metrics.winRate * 100).toFixed(1)}%
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
                 <span className="text-gray-700 font-medium">Profit factor:</span>
                 <span className="text-xl font-semibold text-gray-900">
                   {result.metrics.profitFactor.toFixed(2)}
                 </span>
               </div>
 
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-gray-700 font-medium">Probability of randomness:</span>
-                  <p className="text-xs text-gray-500 mt-1">
+              <div className="flex justify-between items-start py-3">
+                <div className="flex-1">
+                  <span className="text-gray-700 font-medium block mb-1">Probability of randomness:</span>
+                  <p className="text-xs text-gray-500">
                     Lower is better. Below 20% usually indicates a real edge.
                   </p>
                 </div>
-                <span className="text-xl font-semibold text-gray-900">
+                <span className="text-xl font-semibold text-gray-900 ml-4">
                   {(result.probabilityRandom * 100).toFixed(1)}%
                 </span>
               </div>
             </div>
 
-            {/* Stability Check */}
+            {/* Stability Check - Better styling */}
             <div className="pt-6 border-t border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-3">Stability Check:</p>
-              <div className="grid grid-cols-2 gap-4 mb-2">
-                <div>
-                  <span className="text-gray-600 text-sm">First half EV:</span>
-                  <span className={`ml-2 font-semibold ${result.stabilityCheck.firstHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <p className="text-sm font-semibold text-gray-700 mb-4">Stability Check</p>
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <span className="text-xs text-gray-600 block mb-1">First half EV:</span>
+                  <span className={`text-lg font-bold ${result.stabilityCheck.firstHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.firstHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.firstHalf.expectedValue.toFixed(2)}R
                   </span>
                 </div>
-                <div>
-                  <span className="text-gray-600 text-sm">Second half EV:</span>
-                  <span className={`ml-2 font-semibold ${result.stabilityCheck.secondHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <span className="text-xs text-gray-600 block mb-1">Second half EV:</span>
+                  <span className={`text-lg font-bold ${result.stabilityCheck.secondHalf.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {result.stabilityCheck.secondHalf.expectedValue >= 0 ? '+' : ''}
                     {result.stabilityCheck.secondHalf.expectedValue.toFixed(2)}R
                   </span>
                 </div>
               </div>
               {result.stabilityCheck.degradation && (
-                <p className="text-sm text-orange-600 mt-2">
-                  ⚠️ Performance degraded in second half
-                </p>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+                  <p className="text-sm text-orange-800 font-medium">
+                    ⚠️ Performance degraded in second half
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Additional Details */}
-            <div className="pt-6 border-t border-gray-200 text-sm text-gray-600">
-              <p>Winning trades: {result.metrics.winningTrades} | Losing trades: {result.metrics.losingTrades}</p>
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex gap-6 text-sm text-gray-600">
+                <div>
+                  <span className="font-medium text-gray-700">Winning trades:</span>{' '}
+                  <span className="text-green-600 font-semibold">{result.metrics.winningTrades}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Losing trades:</span>{' '}
+                  <span className="text-red-600 font-semibold">{result.metrics.losingTrades}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Email Gate */}
         {!emailSubmitted && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-            <p className="text-sm font-medium text-gray-700 mb-4">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6">
+            <p className="text-sm font-semibold text-gray-900 mb-4">
               Get your full report (PDF + breakdown)
             </p>
-            <form onSubmit={handleEmailSubmit} className="flex gap-2">
+            <form onSubmit={handleEmailSubmit} className="flex gap-2 mb-3">
               <input
                 type="email"
                 value={email}
@@ -277,9 +289,9 @@ function ResultsContent() {
                 Get Report
               </button>
             </form>
-            <p className="text-xs text-gray-500 mt-3 text-center">
+            <p className="text-xs text-gray-500 text-center">
               Want deeper journaling and performance tracking?{' '}
-              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
                 Try InsightTrader →
               </a>
             </p>
@@ -288,14 +300,14 @@ function ResultsContent() {
 
         {emailSubmitted && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <p className="text-green-800">Thank you! Check your email for the full report.</p>
+            <p className="text-green-800 font-medium">Thank you! Check your email for the full report.</p>
           </div>
         )}
 
         <div className="text-center">
           <a
             href="/"
-            className="text-primary hover:underline"
+            className="text-primary hover:underline font-medium"
           >
             Check another strategy →
           </a>
