@@ -6,14 +6,10 @@ let sql: any = null;
 if (process.env.DATABASE_URL) {
   sql = neon(process.env.DATABASE_URL);
 } else {
-  // Create a mock sql object that throws helpful errors
-  sql = new Proxy({}, {
-    get: () => {
-      return () => {
-        throw new Error('DATABASE_URL environment variable is not set. Please configure your Neon database connection.');
-      };
-    }
-  });
+  // Create a template tag function that throws helpful errors
+  sql = (strings: TemplateStringsArray, ...values: any[]) => {
+    throw new Error('DATABASE_URL environment variable is not set. Please configure your Neon database connection.');
+  };
 }
 
 export { sql };
@@ -21,6 +17,10 @@ export { sql };
 // Initialize database schema
 export async function initDatabase() {
   try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL environment variable is not set. Please configure your Neon database connection.');
+    }
+
     // Create users table
     await sql`
       CREATE TABLE IF NOT EXISTS users (
