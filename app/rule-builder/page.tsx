@@ -248,14 +248,14 @@ function StrategyCheckContent() {
             <select
               value={rule.symbol || ''}
               onChange={(e) => setRule({ ...rule, symbol: e.target.value || null })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-900"
               disabled={isLoadingSymbols}
             >
-              <option value="">
+              <option value="" className="text-gray-900">
                 {isLoadingSymbols ? 'Loading...' : 'All instruments'}
               </option>
               {symbols.map((stat) => (
-                <option key={stat.symbol} value={stat.symbol}>
+                <option key={stat.symbol} value={stat.symbol} className="text-gray-900">
                   {stat.symbol}
                 </option>
               ))}
