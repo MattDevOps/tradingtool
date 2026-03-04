@@ -35,3 +35,7 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# CSV files (may contain sensitive trading data)
+*.csv
+!*.csv.example
