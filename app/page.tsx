@@ -10,14 +10,20 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/logo.png"
-                alt="Strategy Reality Check"
-                width={240}
-                height={60}
-                className="h-12 md:h-14 w-auto"
-                priority
-              />
+              <div className="relative">
+                <Image
+                  src="/logo.png"
+                  alt="Strategy Reality Check"
+                  width={400}
+                  height={100}
+                  className="h-16 md:h-20 lg:h-24 w-auto"
+                  priority
+                  style={{ 
+                    mixBlendMode: 'multiply',
+                    filter: 'contrast(1.2)'
+                  }}
+                />
+              </div>
             </Link>
             <div className="text-sm text-gray-600">
               {/* Future: Sign In / Sign Up */}

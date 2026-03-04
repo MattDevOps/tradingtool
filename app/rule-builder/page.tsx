@@ -220,9 +220,10 @@ function StrategyCheckContent() {
               <Image
                 src="/logo.png"
                 alt="Strategy Reality Check"
-                width={240}
-                height={60}
-                className="h-12 md:h-14 w-auto"
+                width={400}
+                height={100}
+                className="h-16 md:h-20 lg:h-24 w-auto"
+                style={{ mixBlendMode: 'multiply' }}
               />
             </Link>
           </div>
