@@ -33,6 +33,8 @@ function StrategyCheckContent() {
   const [symbols, setSymbols] = useState<SymbolStat[]>([]);
   const [totalTrades, setTotalTrades] = useState<number>(0);
   const [matchCount, setMatchCount] = useState<number | null>(null);
+  const [matchBreakdown, setMatchBreakdown] = useState<{ longs: number; shorts: number } | null>(null);
+  const [previewTrades, setPreviewTrades] = useState<Array<{ date: string; symbol: string; side: string; pnl: number; rMultiple: string }>>([]);
   const [isLoadingCount, setIsLoadingCount] = useState(false);
   const [isLoadingSymbols, setIsLoadingSymbols] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -88,11 +90,13 @@ function StrategyCheckContent() {
       });
   }, [uploadId]);
 
-  // Fetch preview count when rule changes
+  // Fetch preview count and sample trades when rule changes
   useEffect(() => {
     if (!uploadId) return;
 
     setIsLoadingCount(true);
+    
+    // Fetch count and breakdown
     fetch('/api/strategy/preview-count', {
       method: 'POST',
       headers: {
@@ -118,6 +122,40 @@ function StrategyCheckContent() {
       .catch(err => {
         console.error('Error fetching preview count:', err);
         setMatchCount(null);
+      });
+
+    // Fetch sample trades and breakdown
+    fetch('/api/strategy/preview-trades', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uploadId,
+        rule: {
+          instrument: rule.symbol || undefined,
+          direction: rule.direction,
+          timeWindowStart: undefined,
+          timeWindowEnd: undefined,
+          maxHoldingTime: rule.maxHoldingMinutes || undefined,
+          startDate: rule.startDate || undefined,
+          endDate: rule.endDate || undefined,
+        },
+        limit: 5,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setPreviewTrades(data.trades || []);
+        setMatchBreakdown({
+          longs: data.longs || 0,
+          shorts: data.shorts || 0,
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching preview trades:', err);
+        setPreviewTrades([]);
+        setMatchBreakdown(null);
       })
       .finally(() => {
         setIsLoadingCount(false);
@@ -270,17 +308,50 @@ function StrategyCheckContent() {
           </div>
 
           {/* Match Preview */}
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
             {isLoadingCount ? (
               <span className="text-sm text-gray-600">Checking...</span>
             ) : (
-              <span className="text-sm font-medium text-gray-700">
-                This rule matches{' '}
-                <span className="text-lg font-semibold text-primary">
-                  {matchCount !== null ? matchCount : '—'}
-                </span>{' '}
-                trades
-              </span>
+              <>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">
+                    This rule matches{' '}
+                    <span className="text-lg font-semibold text-primary">
+                      {matchCount !== null ? matchCount : '—'}
+                    </span>{' '}
+                    trades
+                  </span>
+                  {matchBreakdown && matchCount !== null && matchCount > 0 && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      {matchBreakdown.longs} longs · {matchBreakdown.shorts} shorts
+                    </div>
+                  )}
+                </div>
+
+                {/* Sample Trades Preview (Read-only) */}
+                {previewTrades.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-300">
+                    <p className="text-xs font-medium text-gray-700 mb-2">Sample of matched trades:</p>
+                    <div className="space-y-1">
+                      {previewTrades.map((trade, idx) => (
+                        <div key={idx} className="text-xs text-gray-600 font-mono flex justify-between items-center">
+                          <span>
+                            {trade.date} {trade.symbol} {trade.side}
+                          </span>
+                          <span className={trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                            {trade.pnl >= 0 ? '+' : ''}{trade.rMultiple}R
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {matchCount !== null && matchCount > previewTrades.length && (
+                      <p className="text-xs text-gray-500 mt-2 italic">
+                        Showing {previewTrades.length} of {matchCount} trades
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
