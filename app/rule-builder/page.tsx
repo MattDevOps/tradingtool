@@ -214,11 +214,11 @@ function StrategyCheckContent() {
               disabled={isLoadingSymbols}
             >
               <option value="">
-                {isLoadingSymbols ? 'Loading...' : `All instruments (${totalTrades} trades)`}
+                {isLoadingSymbols ? 'Loading...' : 'All instruments'}
               </option>
               {symbols.map((stat) => (
                 <option key={stat.symbol} value={stat.symbol}>
-                  {stat.symbol} ({stat.count} trades)
+                  {stat.symbol}
                 </option>
               ))}
             </select>
