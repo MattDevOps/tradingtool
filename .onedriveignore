@@ -1,0 +1,9 @@
+# OneDrive ignore file
+# Tells OneDrive to not sync these folders
+
+.next/
+.next/**
+node_modules/
+*.log
+.env*.local
+.vercel
