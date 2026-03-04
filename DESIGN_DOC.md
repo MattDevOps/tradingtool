@@ -458,6 +458,23 @@ CREATE INDEX idx_strategy_results_user ON strategy_results(user_id);
 - Prop firm-specific rules (Topstep, Apex challenge requirements)
 - Weekly/monthly performance trends
 
+### Authentication & User Accounts (Future - End Phase)
+**Note:** This feature will be added at the end, after core functionality is proven.
+
+- **Email sign-in** - Allow users to create accounts and save their analysis history
+- User dashboard to view past strategy analyses
+- Ability to re-run analyses on saved trade data
+- Export history and share results
+- Integration with InsightTrader app for existing users
+- Persistent storage of trade uploads and analysis results per user
+
+**Implementation Notes:**
+- Use Supabase Auth or NextAuth.js for email authentication
+- Extend existing `users` table in Neon DB
+- Add user session management
+- Protect user-specific routes and data
+- Maintain backward compatibility (anonymous usage still works)
+
 ### Importer Reuse
 - The auto-inference importer can be reused in InsightTrader app
 - Modular design allows easy integration
