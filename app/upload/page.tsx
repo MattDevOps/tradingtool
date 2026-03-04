@@ -79,7 +79,7 @@ export default function UploadPage() {
 
       <main className="container mx-auto px-4 py-12 max-w-2xl">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Upload Your Trade History
+          Upload Your ThinkOrSwim Trade History
         </h1>
 
         {error && (
@@ -130,16 +130,19 @@ export default function UploadPage() {
                 {(file.size / 1024).toFixed(2)} KB
               </p>
             </div>
-          ) : (
+            ) : (
             <div>
               <div className="text-4xl mb-4">📁</div>
               <p className="text-lg font-semibold text-gray-900 mb-2">
-                Drag & drop CSV file here
+                Drag & drop ThinkOrSwim CSV file here
               </p>
               <p className="text-gray-600 mb-4">or click to browse</p>
               <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg transition-colors">
                 Choose File
               </button>
+              <p className="text-xs text-gray-500 mt-4">
+                Export from ThinkOrSwim: Monitor → Account Statement → Export CSV
+              </p>
             </div>
           )}
         </div>

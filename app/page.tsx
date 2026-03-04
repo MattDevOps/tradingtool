@@ -25,7 +25,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Upload your closed trades and instantly see if your edge is statistically valid.
+            Upload your ThinkOrSwim trade history and instantly see if your edge is statistically valid.
             Free, fast, and no setup required.
           </p>
 
@@ -33,11 +33,11 @@ export default function Home() {
             href="/upload"
             className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors shadow-lg hover:shadow-xl"
           >
-            Upload CSV → Check Strategy
+            Upload ThinkOrSwim CSV → Check Strategy
           </Link>
 
           <p className="text-sm text-gray-500 mt-6">
-            Supported formats: CSV (comma or tab-separated)
+            Works with ThinkOrSwim trade exports (CSV format)
           </p>
         </div>
 
@@ -47,7 +47,7 @@ export default function Home() {
               <div className="text-4xl mb-4">📊</div>
               <h3 className="text-xl font-semibold mb-2">Upload Trades</h3>
               <p className="text-gray-600">
-                Upload your closed-trade CSV from any broker. We auto-detect columns automatically.
+                Export your closed trades from ThinkOrSwim and upload the CSV. We auto-detect columns automatically.
               </p>
             </div>
             <div className="text-center">
