@@ -114,7 +114,17 @@ export async function POST(request: NextRequest) {
           start: trades[0].open_time.toISOString(),
           end: trades[trades.length - 1].close_time.toISOString(),
         },
-        symbols: [...new Set(trades.map(t => t.symbol))],
+        symbols: (() => {
+          // Calculate symbol counts for temp uploads
+          const symbolCounts = new Map<string, number>();
+          trades.forEach(t => {
+            symbolCounts.set(t.symbol, (symbolCounts.get(t.symbol) || 0) + 1);
+          });
+          return Array.from(symbolCounts.entries()).map(([symbol, count]) => ({
+            symbol,
+            count,
+          }));
+        })(),
         warning: 'Database not configured. Results will not be persisted.',
       });
     }
