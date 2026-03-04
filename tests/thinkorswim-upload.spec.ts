@@ -3,7 +3,17 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 test.describe('ThinkOrSwim CSV Upload Flow', () => {
-  test('should upload ThinkOrSwim CSV and extract closed trades', async ({ page }) => {
+  test('should upload ThinkOrSwim CSV and extract closed trades', async ({ page, context }) => {
+    // Enable console logging to see API errors
+    page.on('console', msg => console.log('Browser console:', msg.text()));
+    page.on('pageerror', error => console.error('Page error:', error));
+    
+    // Intercept API calls to see what's happening
+    page.on('response', response => {
+      if (response.url().includes('/api/upload')) {
+        console.log('Upload API response:', response.status(), response.url());
+      }
+    });
     // Navigate to landing page
     await page.goto('/');
     

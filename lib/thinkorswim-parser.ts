@@ -11,7 +11,10 @@ import { TradeRow } from './importer';
  * - Profits and Losses section
  */
 export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
-  const allRows = Papa.parse<string[]>(csvText, {
+  // Remove BOM if present (ThinkOrSwim exports sometimes have UTF-8 BOM)
+  const cleanedText = csvText.charCodeAt(0) === 0xFEFF ? csvText.slice(1) : csvText;
+  
+  const allRows = Papa.parse<string[]>(cleanedText, {
     header: false,
     skipEmptyLines: false,
     transform: (value: string) => value.trim(),
@@ -268,9 +271,23 @@ function parseThinkOrSwimDate(dateStr: string): Date | null {
 
 /**
  * Detect if a CSV is a ThinkOrSwim Account Statement
+ * 
+ * ThinkOrSwim exports can be:
+ * 1. Date range export (Account Statement for X since Y through Z)
+ * 2. X days back export (similar format)
+ * 
+ * Both contain "Account Trade History" section
  */
 export function isThinkOrSwimStatement(csvText: string): boolean {
-  const firstLines = csvText.split('\n').slice(0, 10).join('\n').toLowerCase();
-  return firstLines.includes('account statement') && 
-         (firstLines.includes('thinkorswim') || firstLines.includes('td ameritrade') || firstLines.includes('schwab'));
+  // Remove BOM if present
+  const cleanedText = csvText.charCodeAt(0) === 0xFEFF ? csvText.slice(1) : csvText;
+  const textLower = cleanedText.toLowerCase();
+  
+  // Primary check: Must have "Account Trade History" section
+  // This is the key indicator for both date range and "x days back" exports
+  const hasTradeHistory = textLower.includes('account trade history');
+  
+  // If it has Account Trade History, it's definitely ThinkOrSwim
+  // Both export formats (date range and x days back) include this section
+  return hasTradeHistory;
 }

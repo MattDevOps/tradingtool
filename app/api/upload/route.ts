@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     let trades;
     let columnMapping: DetectedColumns = {};
 
-    if (isThinkOrSwimStatement(csvText)) {
+    const isTOS = isThinkOrSwimStatement(csvText);
+    console.log('ThinkOrSwim detection:', isTOS);
+    
+    if (isTOS) {
       // Use ThinkOrSwim-specific parser
       try {
         trades = parseThinkOrSwimCSV(csvText);
