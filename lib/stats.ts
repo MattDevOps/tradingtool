@@ -1,4 +1,5 @@
-import { TradeRow } from './importer';
+import type { TradeRow } from './importer';
+export type { TradeRow };
 
 export interface StrategyRule {
   instrument?: string;
