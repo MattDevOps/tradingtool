@@ -1,0 +1,22 @@
+/**
+ * Database initialization script
+ * Run this once to set up the database schema
+ * 
+ * Usage: npx tsx scripts/init-db.ts
+ */
+
+import { initDatabase } from '../lib/db';
+
+async function main() {
+  console.log('Initializing database...');
+  try {
+    await initDatabase();
+    console.log('✅ Database initialized successfully!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Failed to initialize database:', error);
+    process.exit(1);
+  }
+}
+
+main();
