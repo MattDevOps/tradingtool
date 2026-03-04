@@ -53,6 +53,23 @@ function StrategyCheckContent() {
     if (!uploadId) return;
 
     setIsLoadingSymbols(true);
+    
+    // Check sessionStorage first (for temp uploads)
+    const cachedSymbols = sessionStorage.getItem(`upload-${uploadId}-symbols`);
+    if (cachedSymbols) {
+      try {
+        const symbols = JSON.parse(cachedSymbols);
+        setSymbols(symbols);
+        const total = symbols.reduce((sum: number, s: SymbolStat) => sum + (s.count || 0), 0);
+        setTotalTrades(total);
+        setIsLoadingSymbols(false);
+        return;
+      } catch (e) {
+        // Fall through to API fetch
+      }
+    }
+    
+    // Fetch from API (for DB-backed uploads)
     fetch(`/api/uploads/${uploadId}/symbols`)
       .then(res => res.json())
       .then(data => {
@@ -254,16 +271,17 @@ function StrategyCheckContent() {
 
           {/* Match Preview */}
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Matches</span>
-              {isLoadingCount ? (
-                <span className="text-lg font-semibold text-gray-500">Checking...</span>
-              ) : (
+            {isLoadingCount ? (
+              <span className="text-sm text-gray-600">Checking...</span>
+            ) : (
+              <span className="text-sm font-medium text-gray-700">
+                This rule matches{' '}
                 <span className="text-lg font-semibold text-primary">
-                  {matchCount !== null ? matchCount : '—'} trades
-                </span>
-              )}
-            </div>
+                  {matchCount !== null ? matchCount : '—'}
+                </span>{' '}
+                trades
+              </span>
+            )}
           </div>
 
           {/* Advanced Filters */}

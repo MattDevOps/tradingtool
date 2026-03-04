@@ -56,6 +56,16 @@ export default function UploadPage() {
 
       setDetectionResult(data);
       
+      // Store symbols in sessionStorage for temp uploads (no DB)
+      if (data.symbols && Array.isArray(data.symbols)) {
+        const symbolsWithCounts = data.symbols.map((symbol: string) => {
+          // Count occurrences in trades (we have tradeCount but not per-symbol)
+          // For now, we'll fetch from API which handles DB case
+          return { symbol, count: 0 }; // Will be updated by API
+        });
+        sessionStorage.setItem(`upload-${data.uploadId}-symbols`, JSON.stringify(symbolsWithCounts));
+      }
+      
       // Redirect to rule builder with upload ID
       router.push(`/rule-builder?uploadId=${data.uploadId}`);
     } catch (err: any) {
