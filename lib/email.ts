@@ -35,6 +35,11 @@ function getEmailTransporter() {
   return null;
 }
 
+// Get app name from env or use default
+function getAppName() {
+  return process.env.APP_NAME || process.env.SITE_NAME || 'Strategy Reality Check';
+}
+
 // Resend API function (if using Resend)
 async function sendViaResend(email: string, subject: string, html: string) {
   if (!process.env.RESEND_API_KEY) {
@@ -44,8 +49,11 @@ async function sendViaResend(email: string, subject: string, html: string) {
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  const appName = getAppName();
+  const defaultFrom = `${appName} <noreply@yourdomain.com>`;
+  
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Strategy Reality Check <noreply@yourdomain.com>',
+    from: process.env.RESEND_FROM_EMAIL || defaultFrom,
     to: email,
     subject,
     html,
@@ -74,7 +82,7 @@ export async function sendAdminNotification(
   message: string,
   details?: Record<string, any>
 ) {
-  const adminEmail = 'help@insighttrader.io';
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.HELP_EMAIL || 'help@insighttrader.io';
   
   // Check if any email service is configured
   const hasResend = !!process.env.RESEND_API_KEY;
@@ -85,6 +93,7 @@ export async function sendAdminNotification(
     return { success: false, error: 'Email service not configured' };
   }
 
+  const appName = getAppName();
   const html = `
     <!DOCTYPE html>
     <html>
@@ -111,7 +120,7 @@ export async function sendAdminNotification(
       
       <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
         <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-          This is an automated notification from Strategy Reality Check.
+          This is an automated notification from ${appName}.
         </p>
       </div>
     </body>
@@ -131,8 +140,9 @@ export async function sendAdminNotification(
       throw new Error('Email transporter not configured');
     }
 
+    const appName = getAppName();
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
-    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+    const fromName = process.env.SMTP_FROM_NAME || appName;
 
     await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
@@ -164,7 +174,8 @@ export async function sendPasswordResetEmail(
     throw new Error('Email service not configured');
   }
 
-  const subject = 'Reset Your Password - Strategy Reality Check';
+  const appName = getAppName();
+  const subject = `Reset Your Password - ${appName}`;
   const html = `
     <!DOCTYPE html>
     <html>
@@ -179,7 +190,7 @@ export async function sendPasswordResetEmail(
       
       <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 30px; margin-bottom: 20px;">
         <p style="color: #4b5563; font-size: 16px; margin-bottom: 20px;">
-          You requested to reset your password for Strategy Reality Check.
+          You requested to reset your password for ${appName}.
         </p>
         <p style="color: #4b5563; font-size: 16px; margin-bottom: 30px;">
           Click the button below to reset your password. This link will expire in 1 hour.
@@ -203,7 +214,7 @@ export async function sendPasswordResetEmail(
       
       <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
         <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-          This is an automated email from Strategy Reality Check.
+          This is an automated email from ${appName}.
         </p>
       </div>
     </body>
@@ -223,8 +234,9 @@ export async function sendPasswordResetEmail(
       throw new Error('Email transporter not configured');
     }
 
+    const appName = getAppName();
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
-    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+    const fromName = process.env.SMTP_FROM_NAME || appName;
 
     await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
@@ -259,6 +271,7 @@ export async function sendStrategyReport(
     ? '🟠' 
     : '🔴';
 
+  const appName = getAppName();
   const verdictText = report.verdict === 'LIKELY_POSITIVE_EDGE'
     ? 'Your strategy appears to work!'
     : report.verdict === 'LIKELY_NEGATIVE_EDGE'
@@ -275,7 +288,7 @@ export async function sendStrategyReport(
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Strategy Reality Check</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
           </div>
           
           <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 30px; margin-bottom: 20px;">
@@ -341,13 +354,13 @@ export async function sendStrategyReport(
           <div style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 10px;">
             <p style="margin: 0; color: #6b7280; font-size: 14px;">
               Want to analyze more strategies?<br>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" style="color: #667eea; text-decoration: none; font-weight: 600;">Visit Strategy Reality Check →</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" style="color: #667eea; text-decoration: none; font-weight: 600;">Visit ${appName} →</a>
             </p>
           </div>
           
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              This is an automated report from Strategy Reality Check.<br>
+              This is an automated report from ${appName}.<br>
               No account required • Privacy-first
             </p>
           </div>
@@ -368,8 +381,9 @@ export async function sendStrategyReport(
       throw new Error('Email transporter not configured');
     }
 
+    const appName = getAppName();
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
-    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+    const fromName = process.env.SMTP_FROM_NAME || appName;
 
     await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,

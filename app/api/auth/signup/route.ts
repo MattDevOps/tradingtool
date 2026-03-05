@@ -38,9 +38,10 @@ export async function POST(request: NextRequest) {
     `;
 
     // Send admin notification (non-blocking)
+    const appName = process.env.APP_NAME || process.env.SITE_NAME || 'Strategy Reality Check';
     sendAdminNotification(
       'New User Signup',
-      `A new user has signed up for Strategy Reality Check.`,
+      `A new user has signed up for ${appName}.`,
       {
         email: validated.email,
         name: validated.name || 'Not provided',
