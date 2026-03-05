@@ -2,8 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
@@ -25,8 +28,43 @@ export default function Home() {
                 />
               </div>
             </Link>
-            <div className="text-sm text-gray-600">
-              {/* Future: Sign In / Sign Up */}
+            <div className="flex items-center gap-4">
+              {status === 'loading' ? (
+                <div className="text-sm text-gray-400">Loading...</div>
+              ) : session ? (
+                <>
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">{session.user?.email}</span>
+                  </div>
+                  <Link
+                    href="/upload"
+                    className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                  >
+                    My Trades
+                  </Link>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="text-sm text-gray-700 hover:text-gray-900 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -56,20 +94,33 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Link
-              href="/signup"
-              className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
-            >
-              <span>🚀</span>
-              <span>Get Started - Sign Up Free</span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
-            </Link>
-            <Link
-              href="/login"
-              className="group inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl border-2 border-gray-200"
-            >
-              <span>Sign In</span>
-            </Link>
+            {session ? (
+              <Link
+                href="/upload"
+                className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                <span>📊</span>
+                <span>View My Trades</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/signup"
+                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                >
+                  <span>🚀</span>
+                  <span>Get Started - Sign Up Free</span>
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </Link>
+                <Link
+                  href="/login"
+                  className="group inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl border-2 border-gray-200"
+                >
+                  <span>Sign In</span>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/50 shadow-sm">
