@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -92,6 +93,17 @@ export default function UploadPage() {
                 style={{ mixBlendMode: 'multiply' }}
               />
             </Link>
+            {session && (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">{session.user.email}</span>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { parseCSV, autoDetectColumns, normalizeTrades, validateClosedTrades, DetectedColumns } from '@/lib/importer';
 import { parseThinkOrSwimCSV, isThinkOrSwimStatement } from '@/lib/thinkorswim-parser';
 import { sql } from '@/lib/db';
@@ -6,6 +8,15 @@ import { initDatabase } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please sign in to upload trades.' },
+        { status: 401 }
+      );
+    }
+
     // Initialize database if not already done (idempotent)
     if (process.env.DATABASE_URL) {
       try {
@@ -129,10 +140,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create upload record (no user_id for MVP - optional)
+    // Create upload record with user_id
     const uploadResult = await sql`
-      INSERT INTO trade_uploads (original_file_url)
-      VALUES (${file.name})
+      INSERT INTO trade_uploads (user_id, original_file_url)
+      VALUES (${session.user.id}, ${file.name})
       RETURNING id
     `;
 

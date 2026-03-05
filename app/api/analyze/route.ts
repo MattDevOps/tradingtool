@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { analyzeStrategy, StrategyRule, TradeRow } from '@/lib/stats';
 import { initDatabase } from '@/lib/db';
+import { sendStrategyReport } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,6 +113,21 @@ export async function POST(request: NextRequest) {
       )
       RETURNING id
     `;
+
+    // Send email report if email provided
+    if (email) {
+      try {
+        await sendStrategyReport(email, {
+          verdict: result.verdict,
+          metrics: result.metrics,
+          probabilityRandom: result.probabilityRandom,
+          stabilityCheck: result.stabilityCheck,
+        });
+      } catch (error) {
+        console.warn('Failed to send email report:', error);
+        // Don't fail the request if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

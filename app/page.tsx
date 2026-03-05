@@ -57,12 +57,18 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Link
-              href="/upload"
+              href="/signup"
               className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
             >
               <span>🚀</span>
-              <span>Upload & Check Strategy</span>
+              <span>Get Started - Sign Up Free</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </Link>
+            <Link
+              href="/login"
+              className="group inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-xl border-2 border-gray-200"
+            >
+              <span>Sign In</span>
             </Link>
           </div>
 
