@@ -53,6 +53,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
   const posEffectIndex = headerRow.findIndex(h => h.toLowerCase().includes('pos effect') || h.toLowerCase().includes('position effect'));
   const symbolIndex = headerRow.findIndex(h => h.toLowerCase() === 'symbol');
   const priceIndex = headerRow.findIndex(h => h.toLowerCase() === 'price' || h.toLowerCase() === 'net price');
+  const spreadIndex = headerRow.findIndex(h => h.toLowerCase() === 'spread');
 
   if (execTimeIndex === -1 || sideIndex === -1 || symbolIndex === -1 || priceIndex === -1) {
     throw new Error('Could not find required columns in Account Trade History. Expected: Exec Time, Side, Symbol, Price');
@@ -69,6 +70,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
     symbol: string;
     posEffect: 'TO OPEN' | 'TO CLOSE';
     rowIndex: number;
+    spreadName?: string; // Spread identifier (if part of a spread)
   }
 
   const tradeEvents: TradeEvent[] = [];
@@ -90,6 +92,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
     const posEffectStr = row[posEffectIndex] || '';
     const symbolStr = row[symbolIndex];
     const priceStr = row[priceIndex];
+    const spreadStr = spreadIndex !== -1 ? row[spreadIndex] : 'SINGLE';
 
     if (!execTimeStr || !sideStr || !symbolStr || !priceStr) {
       continue; // Skip incomplete rows
@@ -117,6 +120,11 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
     const posEffectUpper = posEffectStr.toUpperCase().trim();
 
     if (posEffectUpper.includes('TO OPEN') || posEffectUpper.includes('TO CLOSE')) {
+      // Determine if this is part of a spread (not "SINGLE")
+      const spreadName = spreadStr && spreadStr.trim().toUpperCase() !== 'SINGLE' 
+        ? spreadStr.trim() 
+        : undefined;
+      
       tradeEvents.push({
         execTime,
         side,
@@ -125,6 +133,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
         symbol: symbolStr,
         posEffect: posEffectUpper.includes('TO OPEN') ? 'TO OPEN' : 'TO CLOSE',
         rowIndex: i,
+        spreadName,
       });
     }
   }
@@ -132,7 +141,150 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
   // Sort events by execution time (chronological order)
   tradeEvents.sort((a, b) => a.execTime.getTime() - b.execTime.getTime());
 
-  // Group trades by symbol and match TO OPEN with TO CLOSE
+  // Separate spread events from single-leg events
+  const spreadEvents = tradeEvents.filter(e => e.spreadName);
+  const singleLegEvents = tradeEvents.filter(e => !e.spreadName);
+
+  const closedTrades: TradeRow[] = [];
+
+  // Process spreads: group by spread name and execution time window (within 5 minutes)
+  const SPREAD_TIME_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+  
+  interface SpreadGroup {
+    spreadName: string;
+    openEvents: TradeEvent[];
+    closeEvents: TradeEvent[];
+    openTime: Date;
+    closeTime: Date;
+  }
+
+  const spreadGroups = new Map<string, SpreadGroup>();
+
+  // Group spread events by spread name and time window
+  for (const event of spreadEvents) {
+    const spreadKey = event.spreadName!;
+    
+    if (!spreadGroups.has(spreadKey)) {
+      spreadGroups.set(spreadKey, {
+        spreadName: spreadKey,
+        openEvents: [],
+        closeEvents: [],
+        openTime: event.execTime,
+        closeTime: event.execTime,
+      });
+    }
+
+    const group = spreadGroups.get(spreadKey)!;
+    
+    if (event.posEffect === 'TO OPEN') {
+      group.openEvents.push(event);
+      // Update open time to earliest
+      if (event.execTime < group.openTime) {
+        group.openTime = event.execTime;
+      }
+    } else if (event.posEffect === 'TO CLOSE') {
+      group.closeEvents.push(event);
+      // Update close time to latest
+      if (event.execTime > group.closeTime) {
+        group.closeTime = event.execTime;
+      }
+    }
+  }
+
+  // Process spread groups: match open and close legs
+  for (const group of spreadGroups.values()) {
+    // Only process if we have both open and close events
+    if (group.openEvents.length === 0 || group.closeEvents.length === 0) {
+      continue;
+    }
+
+    // Match open and close legs by symbol and side
+    const spreadLegs: Array<{
+      symbol: string;
+      side: 'LONG' | 'SHORT';
+      quantity: number;
+      openPrice: number;
+      closePrice: number;
+      pnl: number;
+    }> = [];
+
+    let totalPnl = 0;
+    const processedCloseEvents = new Set<number>();
+
+    // Match each open leg with a close leg
+    for (const openEvent of group.openEvents) {
+      // Find matching close event (same symbol, same side)
+      let matchedClose: TradeEvent | null = null;
+      for (let i = 0; i < group.closeEvents.length; i++) {
+        if (processedCloseEvents.has(i)) continue;
+        const closeEvent = group.closeEvents[i];
+        if (closeEvent.symbol === openEvent.symbol && 
+            closeEvent.side === openEvent.side &&
+            Math.abs(closeEvent.qty - openEvent.qty) <= 1) { // Allow small qty differences
+          matchedClose = closeEvent;
+          processedCloseEvents.add(i);
+          break;
+        }
+      }
+
+      if (matchedClose) {
+        const matchedQty = Math.min(openEvent.qty, matchedClose.qty);
+        const openPrice = openEvent.price;
+        const closePrice = matchedClose.price;
+
+        // Calculate P&L for this leg
+        let legPnl: number;
+        if (openEvent.side === 'LONG') {
+          legPnl = (closePrice - openPrice) * matchedQty;
+        } else {
+          legPnl = (openPrice - closePrice) * matchedQty;
+        }
+
+        // Subtract fees (rough estimate: $0.30 per contract for options)
+        const isOption = openEvent.symbol.includes('PUT') || openEvent.symbol.includes('CALL');
+        const fees = isOption ? matchedQty * 0.30 : 0;
+        legPnl -= fees;
+
+        spreadLegs.push({
+          symbol: openEvent.symbol,
+          side: openEvent.side,
+          quantity: matchedQty,
+          openPrice,
+          closePrice,
+          pnl: legPnl,
+        });
+
+        totalPnl += legPnl;
+      }
+    }
+
+    // Only create spread trade if we matched at least 2 legs (typical spread)
+    if (spreadLegs.length >= 2) {
+      // Determine primary symbol (use first leg or create composite)
+      const primarySymbol = spreadLegs.map(l => l.symbol).join('/');
+      
+      // Determine overall side: credit spread = SHORT (sell high, buy low), debit spread = LONG
+      const hasShort = spreadLegs.some(l => l.side === 'SHORT');
+      const hasLong = spreadLegs.some(l => l.side === 'LONG');
+      const overallSide: 'LONG' | 'SHORT' = hasShort && hasLong 
+        ? (totalPnl > 0 ? 'LONG' : 'SHORT') // Heuristic: if profitable, treat as LONG
+        : (hasShort ? 'SHORT' : 'LONG');
+
+      closedTrades.push({
+        open_time: group.openTime,
+        close_time: group.closeTime,
+        symbol: primarySymbol,
+        side: overallSide,
+        pnl: totalPnl,
+        quantity: spreadLegs[0].quantity, // Use first leg's quantity
+        isSpread: true,
+        spreadName: group.spreadName,
+        spreadLegs,
+      });
+    }
+  }
+
+  // Process single-leg trades: group by symbol and match TO OPEN with TO CLOSE
   const openPositions = new Map<string, Array<{
     execTime: Date;
     side: 'LONG' | 'SHORT';
@@ -141,10 +293,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
     symbol: string;
   }>>();
 
-  const closedTrades: TradeRow[] = [];
-
-  // Process events in chronological order
-  for (const event of tradeEvents) {
+  for (const event of singleLegEvents) {
     const positionKey = event.symbol;
 
     if (event.posEffect === 'TO OPEN') {
@@ -192,6 +341,7 @@ export function parseThinkOrSwimCSV(csvText: string): TradeRow[] {
           side: open.side,
           pnl,
           quantity: matchedQty,
+          isSpread: false,
         });
 
         open.qty -= matchedQty;

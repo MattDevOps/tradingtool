@@ -59,6 +59,9 @@ export async function initDatabase() {
         side TEXT NOT NULL,
         pnl NUMERIC NOT NULL,
         quantity INTEGER,
+        is_spread BOOLEAN DEFAULT FALSE,
+        spread_name TEXT,
+        spread_legs JSONB,
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;

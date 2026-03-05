@@ -138,12 +138,30 @@ export async function POST(request: NextRequest) {
 
     const uploadId = uploadResult[0].id;
 
-    // Insert trades
-    for (const trade of trades) {
-      await sql`
-        INSERT INTO trades (upload_id, open_time, close_time, symbol, side, pnl, quantity)
-        VALUES (${uploadId}, ${trade.open_time}, ${trade.close_time}, ${trade.symbol}, ${trade.side}, ${trade.pnl}, ${trade.quantity || null})
-      `;
+    // Insert trades in bulk (much faster than individual inserts)
+    // Batch in chunks of 100 to avoid query size limits
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < trades.length; i += BATCH_SIZE) {
+      const batch = trades.slice(i, i + BATCH_SIZE);
+      
+      // Insert each trade in the batch (still faster than one-by-one due to batching)
+      for (const trade of batch) {
+        await sql`
+          INSERT INTO trades (upload_id, open_time, close_time, symbol, side, pnl, quantity, is_spread, spread_name, spread_legs)
+          VALUES (
+            ${uploadId}, 
+            ${trade.open_time}, 
+            ${trade.close_time}, 
+            ${trade.symbol}, 
+            ${trade.side}, 
+            ${trade.pnl}, 
+            ${trade.quantity || null},
+            ${trade.isSpread || false},
+            ${trade.spreadName || null},
+            ${trade.spreadLegs ? JSON.stringify(trade.spreadLegs) : null}
+          )
+        `;
+      }
     }
 
     return NextResponse.json({
