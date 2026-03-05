@@ -54,6 +54,15 @@ RESEND_FROM_EMAIL=Strategy Reality Check <noreply@your-already-verified-domain.c
 
 # Your app URL (for email links)
 NEXT_PUBLIC_APP_URL=http://localhost:3000  # or your production URL
+
+# Admin email for notifications (signups, uploads, errors)
+ADMIN_EMAIL=help@insighttrader.io  # or your preferred admin email
+
+# App name (used in emails and notifications)
+APP_NAME=Strategy Reality Check  # or your app name
+
+# External link URL (optional - for links to other services)
+NEXT_PUBLIC_EXTERNAL_LINK_URL=https://insighttrader.io  # optional
 ```
 
 **To generate NEXTAUTH_SECRET:**
@@ -219,9 +228,12 @@ New tables:
 1. **Set environment variables in Vercel:**
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (your production URL)
-   - `RESEND_API_KEY`
-   - `RESEND_FROM_EMAIL`
+   - `RESEND_API_KEY` (or SMTP settings)
+   - `RESEND_FROM_EMAIL` (or `SMTP_FROM_EMAIL`)
    - `NEXT_PUBLIC_APP_URL` (your production URL)
+   - `ADMIN_EMAIL` (email address for admin notifications - defaults to `help@insighttrader.io` if not set)
+   - `APP_NAME` (optional - app name used in emails, defaults to "Strategy Reality Check")
+   - `NEXT_PUBLIC_EXTERNAL_LINK_URL` (optional - URL for external links like InsightTrader)
 
 2. **Verify your email configuration:**
    - **If using Resend:** Verify your sending domain in Resend dashboard

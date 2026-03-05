@@ -667,7 +667,7 @@ function ResultsContent() {
             </form>
             <p className="text-xs text-gray-600 text-center">
               Want deeper journaling and performance tracking?{' '}
-              <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 underline font-semibold">
+              <a href={process.env.NEXT_PUBLIC_EXTERNAL_LINK_URL || 'https://insighttrader.io'} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 underline font-semibold">
                 Try InsightTrader →
               </a>
             </p>
