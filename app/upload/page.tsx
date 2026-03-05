@@ -8,6 +8,7 @@ import Image from 'next/image';
 
 export default function UploadPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
