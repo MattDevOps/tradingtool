@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch trades from database
     const tradesResult = await sql`
-      SELECT open_time, close_time, symbol, side, pnl, quantity
+      SELECT open_time, close_time, symbol, side, pnl, quantity, is_spread, spread_name, spread_legs
       FROM trades
       WHERE upload_id = ${uploadId}
       ORDER BY open_time ASC
@@ -42,6 +42,9 @@ export async function POST(request: NextRequest) {
       side: row.side as 'LONG' | 'SHORT',
       pnl: parseFloat(row.pnl),
       quantity: row.quantity ? parseInt(row.quantity, 10) : undefined,
+      isSpread: row.is_spread || false,
+      spreadName: row.spread_name || undefined,
+      spreadLegs: row.spread_legs || undefined,
     }));
 
     // Normalize rule for filtering (separate date range from time window)

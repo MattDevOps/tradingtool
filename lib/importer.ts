@@ -24,6 +24,17 @@ export interface TradeRow {
   side: 'LONG' | 'SHORT';
   pnl: number;
   quantity?: number;
+  // Spread identification
+  isSpread?: boolean;
+  spreadName?: string; // Name/ID of the spread (e.g., "SPREAD_123" or "CREDIT_SPREAD_ABC")
+  spreadLegs?: Array<{
+    symbol: string;
+    side: 'LONG' | 'SHORT';
+    quantity: number;
+    openPrice: number;
+    closePrice: number;
+    pnl: number;
+  }>;
 }
 
 /**
