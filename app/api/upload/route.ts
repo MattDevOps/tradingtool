@@ -5,6 +5,7 @@ import { parseCSV, autoDetectColumns, normalizeTrades, validateClosedTrades, Det
 import { parseThinkOrSwimCSV, isThinkOrSwimStatement } from '@/lib/thinkorswim-parser';
 import { sql } from '@/lib/db';
 import { initDatabase } from '@/lib/db';
+import { sendAdminNotification } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +57,20 @@ export async function POST(request: NextRequest) {
           pnl: 4,
         };
       } catch (error: any) {
+        // Send admin notification for parsing error (non-blocking)
+        sendAdminNotification(
+          'Upload Error - Parsing Failed',
+          `A user encountered an error while parsing ThinkOrSwim CSV.`,
+          {
+            userId: session.user.id,
+            userEmail: session.user.email,
+            error: error.message || 'Failed to parse ThinkOrSwim Account Statement',
+            errorStack: error.stack,
+            fileName: file.name,
+            timestamp: new Date().toISOString(),
+          }
+        ).catch(err => console.error('Failed to send error notification:', err));
+        
         return NextResponse.json(
           { error: error.message || 'Failed to parse ThinkOrSwim Account Statement' },
           { status: 400 }
@@ -175,6 +190,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Send admin notification for successful upload (non-blocking)
+    sendAdminNotification(
+      'User Data Upload',
+      `A user has successfully uploaded trading data.`,
+      {
+        userId: session.user.id,
+        userEmail: session.user.email,
+        uploadId,
+        tradeCount: trades.length,
+        fileName: file.name,
+        timestamp: new Date().toISOString(),
+      }
+    ).catch(err => console.error('Failed to send upload notification:', err));
+
     return NextResponse.json({
       success: true,
       uploadId,
@@ -188,6 +217,21 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Upload error:', error);
+    
+    // Send admin notification for upload error (non-blocking)
+    const session = await getServerSession(authOptions).catch(() => null);
+    sendAdminNotification(
+      'Upload Error - Bug Report',
+      `A user encountered an error while uploading their data.`,
+      {
+        userId: session?.user?.id || 'Unknown',
+        userEmail: session?.user?.email || 'Unknown',
+        error: error.message || 'Unknown error',
+        errorStack: error.stack,
+        timestamp: new Date().toISOString(),
+      }
+    ).catch(err => console.error('Failed to send error notification:', err));
+    
     return NextResponse.json(
       { error: error.message || 'Failed to process CSV file' },
       { status: 500 }

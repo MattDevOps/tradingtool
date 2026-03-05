@@ -68,6 +68,178 @@ interface StrategyReport {
   };
 }
 
+// Send admin notification to help@insighttrader.io
+export async function sendAdminNotification(
+  subject: string,
+  message: string,
+  details?: Record<string, any>
+) {
+  const adminEmail = 'help@insighttrader.io';
+  
+  // Check if any email service is configured
+  const hasResend = !!process.env.RESEND_API_KEY;
+  const hasSMTP = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+
+  if (!hasResend && !hasSMTP) {
+    console.warn('No email service configured. Cannot send admin notification.');
+    return { success: false, error: 'Email service not configured' };
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">Admin Notification</h1>
+      </div>
+      
+      <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 30px; margin-bottom: 20px;">
+        <h2 style="margin-top: 0; font-size: 20px; color: #1f2937;">${subject}</h2>
+        <p style="color: #4b5563; font-size: 16px; margin-bottom: 20px;">${message}</p>
+        
+        ${details ? `
+        <div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px;">
+          <h3 style="margin-top: 0; color: #4b5563; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Details</h3>
+          <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; color: #1f2937;">${JSON.stringify(details, null, 2)}</pre>
+        </div>
+        ` : ''}
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+          This is an automated notification from Strategy Reality Check.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    // Use Resend if configured
+    if (process.env.RESEND_API_KEY) {
+      await sendViaResend(adminEmail, subject, html);
+      return { success: true };
+    }
+
+    // Otherwise use SMTP
+    const transporter = getEmailTransporter();
+    if (!transporter) {
+      throw new Error('Email transporter not configured');
+    }
+
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+
+    await transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
+      to: adminEmail,
+      subject,
+      html,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send admin notification:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// Send password reset email
+export async function sendPasswordResetEmail(
+  email: string,
+  resetToken: string
+) {
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+  
+  // Check if any email service is configured
+  const hasResend = !!process.env.RESEND_API_KEY;
+  const hasSMTP = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+
+  if (!hasResend && !hasSMTP) {
+    console.warn('No email service configured. Cannot send password reset email.');
+    throw new Error('Email service not configured');
+  }
+
+  const subject = 'Reset Your Password - Strategy Reality Check';
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">Password Reset</h1>
+      </div>
+      
+      <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 30px; margin-bottom: 20px;">
+        <p style="color: #4b5563; font-size: 16px; margin-bottom: 20px;">
+          You requested to reset your password for Strategy Reality Check.
+        </p>
+        <p style="color: #4b5563; font-size: 16px; margin-bottom: 30px;">
+          Click the button below to reset your password. This link will expire in 1 hour.
+        </p>
+        
+        <div style="text-align: center;">
+          <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+            Reset Password
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+          If you didn't request this, you can safely ignore this email.
+        </p>
+        
+        <p style="color: #6b7280; font-size: 12px; margin-top: 20px; word-break: break-all;">
+          Or copy and paste this link into your browser:<br>
+          <a href="${resetUrl}" style="color: #667eea;">${resetUrl}</a>
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+          This is an automated email from Strategy Reality Check.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    // Use Resend if configured
+    if (process.env.RESEND_API_KEY) {
+      await sendViaResend(email, subject, html);
+      return { success: true };
+    }
+
+    // Otherwise use SMTP
+    const transporter = getEmailTransporter();
+    if (!transporter) {
+      throw new Error('Email transporter not configured');
+    }
+
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+
+    await transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
+      to: email,
+      subject,
+      html,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send password reset email:', error);
+    throw error;
+  }
+}
+
 export async function sendStrategyReport(
   email: string,
   report: StrategyReport

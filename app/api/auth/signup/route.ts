@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { sendAdminNotification } from '@/lib/email';
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -35,6 +36,17 @@ export async function POST(request: NextRequest) {
       VALUES (${validated.email}, ${passwordHash}, ${validated.name || null})
       RETURNING id, email, name
     `;
+
+    // Send admin notification (non-blocking)
+    sendAdminNotification(
+      'New User Signup',
+      `A new user has signed up for Strategy Reality Check.`,
+      {
+        email: validated.email,
+        name: validated.name || 'Not provided',
+        timestamp: new Date().toISOString(),
+      }
+    ).catch(err => console.error('Failed to send signup notification:', err));
 
     return NextResponse.json({
       success: true,
