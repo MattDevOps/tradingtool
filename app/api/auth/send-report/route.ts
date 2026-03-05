@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { sql } from '@/lib/db';
 import { sendStrategyReport } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getAuth();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
       return NextResponse.json(

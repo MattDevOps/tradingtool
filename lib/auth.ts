@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { sql } from './db';
 import bcrypt from 'bcryptjs';
@@ -16,29 +16,34 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const email = String(credentials.email);
+        const password = String(credentials.password);
+
         const user = await sql`
           SELECT id, email, password_hash, name
           FROM users
-          WHERE email = ${credentials.email}
+          WHERE email = ${email}
         `;
 
         if (user.length === 0) {
           return null;
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user[0].password_hash
-        );
+        const passwordHash = String(user[0].password_hash || '');
+        if (!passwordHash) {
+          return null;
+        }
+
+        const isValid = await bcrypt.compare(password, passwordHash);
 
         if (!isValid) {
           return null;
         }
 
         return {
-          id: user[0].id,
-          email: user[0].email,
-          name: user[0].name || user[0].email,
+          id: String(user[0].id),
+          email: String(user[0].email),
+          name: user[0].name ? String(user[0].name) : String(user[0].email),
         };
       },
     }),
@@ -48,7 +53,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
-    signUp: '/signup',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -68,10 +72,3 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
-// For NextAuth v5, we need to create the auth function differently
-// This will be used in API routes
-export async function getAuth() {
-  const { auth } = await import('next-auth');
-  return auth(authOptions);
-}
