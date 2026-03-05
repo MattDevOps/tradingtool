@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -32,13 +33,14 @@ interface StrategyResult {
 function ResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const resultId = searchParams.get('resultId');
   const uploadId = searchParams.get('uploadId');
 
   const [result, setResult] = useState<StrategyResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(session?.user?.email || '');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   useEffect(() => {
@@ -70,20 +72,25 @@ function ResultsContent() {
     if (!email || !resultId) return;
 
     try {
-      await fetch('/api/analyze', {
+      const res = await fetch('/api/auth/send-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          uploadId,
-          email,
+          resultId,
         }),
       });
 
-      setEmailSubmitted(true);
+      if (res.ok) {
+        setEmailSubmitted(true);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to send report');
+      }
     } catch (err) {
       console.error('Failed to submit email:', err);
+      setError('Failed to send report. Please try again.');
     }
   };
 
@@ -639,7 +646,7 @@ function ResultsContent() {
         </div>
 
         {/* Email Gate */}
-        {!emailSubmitted && (
+        {!emailSubmitted && session?.user?.email && (
           <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-soft p-8 mb-6">
             <div className="text-center mb-6">
               <span className="text-4xl mb-3 block">📧</span>
@@ -647,23 +654,15 @@ function ResultsContent() {
                 Get your full report
               </p>
               <p className="text-sm text-gray-600">
-                PDF + detailed breakdown delivered to your inbox
+                Detailed breakdown delivered to {session.user.email}
               </p>
             </div>
             <form onSubmit={handleEmailSubmit} className="flex gap-3 mb-4">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="flex-1 px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
-              />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
               >
-                Get Report
+                Send Report to {session.user.email}
               </button>
             </form>
             <p className="text-xs text-gray-600 text-center">
@@ -671,6 +670,34 @@ function ResultsContent() {
               <a href="https://insighttrader.io" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 underline font-semibold">
                 Try InsightTrader →
               </a>
+            </p>
+          </div>
+        )}
+
+        {!emailSubmitted && !session?.user?.email && (
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-soft p-8 mb-6">
+            <div className="text-center mb-6">
+              <span className="text-4xl mb-3 block">📧</span>
+              <p className="text-xl font-bold text-gray-900 mb-2">
+                Get your full report
+              </p>
+              <p className="text-sm text-gray-600">
+                Sign in to receive your detailed report via email
+              </p>
+            </div>
+            <div className="flex gap-3 mb-4">
+              <Link
+                href="/login"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
+              >
+                Sign In to Get Report
+              </Link>
+            </div>
+            <p className="text-xs text-gray-600 text-center">
+              Don't have an account?{' '}
+              <Link href="/signup" className="text-indigo-600 hover:text-indigo-700 underline font-semibold">
+                Sign up →
+              </Link>
             </p>
           </div>
         )}
