@@ -1,6 +1,56 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Support multiple email providers
+// Priority: RESEND_API_KEY > Gmail SMTP > SendGrid
+let emailTransporter: nodemailer.Transporter | null = null;
+
+function getEmailTransporter() {
+  if (emailTransporter) {
+    return emailTransporter;
+  }
+
+  // Option 1: Resend (if API key is set)
+  if (process.env.RESEND_API_KEY) {
+    // Resend uses their own API, we'll handle it separately
+    return null; // Signal to use Resend API
+  }
+
+  // Option 2: Gmail SMTP (free, requires app password)
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    emailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+    return emailTransporter;
+  }
+
+  // Option 3: Gmail with OAuth2 (more complex, but more secure)
+  // For now, we'll use app password method above
+
+  return null;
+}
+
+// Resend API function (if using Resend)
+async function sendViaResend(email: string, subject: string, html: string) {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY not configured');
+  }
+
+  const { Resend } = await import('resend');
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || 'Strategy Reality Check <noreply@yourdomain.com>',
+    to: email,
+    subject,
+    html,
+  });
+}
 
 interface StrategyReport {
   verdict: string;
@@ -22,9 +72,13 @@ export async function sendStrategyReport(
   email: string,
   report: StrategyReport
 ) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not configured, skipping email send');
-    return;
+  // Check if any email service is configured
+  const hasResend = !!process.env.RESEND_API_KEY;
+  const hasSMTP = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+
+  if (!hasResend && !hasSMTP) {
+    console.warn('No email service configured. Set RESEND_API_KEY or SMTP settings.');
+    throw new Error('Email service not configured');
   }
 
   const verdictEmoji = report.verdict === 'LIKELY_POSITIVE_EDGE' 
@@ -39,12 +93,8 @@ export async function sendStrategyReport(
     ? 'Your strategy is losing money'
     : 'Not enough evidence yet';
 
-  try {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Strategy Reality Check <noreply@yourdomain.com>',
-      to: email,
-      subject: `Your Strategy Analysis Report - ${verdictText}`,
-      html: `
+  const subject = `Your Strategy Analysis Report - ${verdictText}`;
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -131,7 +181,29 @@ export async function sendStrategyReport(
           </div>
         </body>
         </html>
-      `,
+      `;
+
+  try {
+    // Use Resend if configured
+    if (process.env.RESEND_API_KEY) {
+      await sendViaResend(email, subject, html);
+      return { success: true };
+    }
+
+    // Otherwise use SMTP
+    const transporter = getEmailTransporter();
+    if (!transporter) {
+      throw new Error('Email transporter not configured');
+    }
+
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@yourdomain.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Strategy Reality Check';
+
+    await transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
+      to: email,
+      subject,
+      html,
     });
 
     return { success: true };

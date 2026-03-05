@@ -38,28 +38,94 @@ Add these to your `.env.local` file:
 NEXTAUTH_SECRET=your-random-secret-key-here
 NEXTAUTH_URL=http://localhost:3000  # or your production URL
 
-# Resend Email Service (get free API key from https://resend.com)
-RESEND_API_KEY=re_your_api_key_here
-RESEND_FROM_EMAIL=Strategy Reality Check <noreply@yourdomain.com>
+# Email Service Configuration (choose ONE option):
+
+# Option 1: Resend (use your existing account - recommended!)
+RESEND_API_KEY=re_your_existing_api_key_here
+RESEND_FROM_EMAIL=Strategy Reality Check <noreply@your-already-verified-domain.com>
+
+# Option 2: Gmail SMTP (free alternative)
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your-email@gmail.com
+# SMTP_PASSWORD=your-gmail-app-password
+# SMTP_FROM_EMAIL=your-email@gmail.com
+# SMTP_FROM_NAME=Strategy Reality Check
 
 # Your app URL (for email links)
 NEXT_PUBLIC_APP_URL=http://localhost:3000  # or your production URL
 ```
 
 **To generate NEXTAUTH_SECRET:**
+
+**Windows (PowerShell) - Use this:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+**Mac/Linux (alternative):**
 ```bash
 openssl rand -base64 32
 ```
 
-### 3. Set Up Resend (Email Service)
+**Or use this online generator:** https://generate-secret.vercel.app/32
 
-1. Go to [https://resend.com](https://resend.com)
-2. Sign up for a free account (100 emails/day free)
-3. Create an API key
-4. Add it to `.env.local` as `RESEND_API_KEY`
-5. Verify your domain (or use their test domain for development)
+### 3. Set Up Email Service (Choose ONE option)
 
-**For production:** You'll need to verify your sending domain in Resend.
+#### Option A: Use Your Existing Resend Account (Recommended - No Extra Cost!)
+**You can use the same Resend account and verified domain from your other website!**
+
+1. Go to your Resend dashboard: https://resend.com/api-keys
+2. Copy your existing API key (or create a new one if you prefer)
+3. Use the same verified domain you already have set up
+4. Add to `.env.local`:
+```bash
+RESEND_API_KEY=re_your_existing_api_key_here
+RESEND_FROM_EMAIL=Strategy Reality Check <noreply@your-already-verified-domain.com>
+```
+
+**Note:** You can use the same domain and API key across multiple projects. No need to verify a new domain or pay extra!
+
+#### Option B: Gmail SMTP (Free, No Account Needed)
+1. Go to your Google Account settings
+2. Enable 2-Step Verification
+3. Generate an App Password:
+   - Go to: https://myaccount.google.com/apppasswords
+   - Select "Mail" and your device
+   - Copy the 16-character password
+4. Add to `.env.local`:
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-16-char-app-password
+SMTP_FROM_EMAIL=your-email@gmail.com
+SMTP_FROM_NAME=Strategy Reality Check
+```
+
+#### Option C: SendGrid (Free Tier: 100 emails/day)
+1. Sign up at [https://sendgrid.com](https://sendgrid.com)
+2. Create an API key
+3. Add to `.env.local`:
+```bash
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASSWORD=your-sendgrid-api-key
+SMTP_FROM_EMAIL=noreply@yourdomain.com
+SMTP_FROM_NAME=Strategy Reality Check
+```
+
+#### Option D: Any SMTP Provider
+Works with any email service that supports SMTP (Outlook, Yahoo, custom SMTP, etc.)
+```bash
+SMTP_HOST=your-smtp-host.com
+SMTP_PORT=587
+SMTP_USER=your-email@domain.com
+SMTP_PASSWORD=your-password-or-app-password
+SMTP_FROM_EMAIL=your-email@domain.com
+SMTP_FROM_NAME=Strategy Reality Check
+```
 
 ### 4. Test the Setup
 
@@ -126,13 +192,17 @@ New tables:
 
 ### "NEXTAUTH_SECRET is not set"
 - Add `NEXTAUTH_SECRET` to `.env.local`
-- Generate a secret: `openssl rand -base64 32`
+- Generate a secret (Windows): `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
+- Or use online generator: https://generate-secret.vercel.app/32
 
 ### "Email not sending"
-- Check `RESEND_API_KEY` is set correctly
-- Verify your Resend account is active
-- Check Resend dashboard for error logs
-- Make sure `RESEND_FROM_EMAIL` is valid
+- **If using Resend:** Check `RESEND_API_KEY` is set correctly, verify account is active
+- **If using Gmail SMTP:** 
+  - Make sure you're using an App Password (not your regular password)
+  - Enable 2-Step Verification first
+  - Check that "Less secure app access" is enabled (if using older Gmail)
+- **If using SMTP:** Verify all SMTP settings are correct (host, port, user, password)
+- Check server logs for specific error messages
 
 ### "Authentication not working"
 - Make sure you ran the migration script
@@ -153,9 +223,10 @@ New tables:
    - `RESEND_FROM_EMAIL`
    - `NEXT_PUBLIC_APP_URL` (your production URL)
 
-2. **Verify your email domain in Resend:**
-   - Add DNS records as instructed
-   - Wait for verification
+2. **Verify your email configuration:**
+   - **If using Resend:** Verify your sending domain in Resend dashboard
+   - **If using Gmail:** Make sure App Password is set correctly
+   - **If using SMTP:** Test SMTP connection works
 
 3. **Test the full flow:**
    - Sign up
