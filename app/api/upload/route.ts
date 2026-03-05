@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuth } from '@/lib/auth';
 import { parseCSV, autoDetectColumns, normalizeTrades, validateClosedTrades, DetectedColumns } from '@/lib/importer';
 import { parseThinkOrSwimCSV, isThinkOrSwimStatement } from '@/lib/thinkorswim-parser';
 import { sql } from '@/lib/db';
@@ -9,7 +8,7 @@ import { initDatabase } from '@/lib/db';
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
+    const session = await getAuth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required. Please sign in to upload trades.' },

@@ -1,4 +1,4 @@
-import { NextAuthOptions } from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { sql } from './db';
 import bcrypt from 'bcryptjs';
@@ -68,3 +68,10 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+// For NextAuth v5, we need to create the auth function differently
+// This will be used in API routes
+export async function getAuth() {
+  const { auth } = await import('next-auth');
+  return auth(authOptions);
+}
