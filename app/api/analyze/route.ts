@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Store result in database (include stability check in metrics JSONB)
+    // Store result in database (include stability check, charts data in metrics JSONB)
     const resultRecord = await sql`
       INSERT INTO strategy_results (upload_id, user_id, rule_definition, metrics, probability_random, verdict)
       VALUES (
@@ -107,6 +107,9 @@ export async function POST(request: NextRequest) {
         ${JSON.stringify({
           ...result.metrics,
           stabilityCheck: result.stabilityCheck,
+          equityCurve: result.equityCurve,
+          tradeDistribution: result.tradeDistribution,
+          confidence: result.confidence,
         })},
         ${result.probabilityRandom},
         ${result.verdict}

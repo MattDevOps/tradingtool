@@ -20,22 +20,28 @@ export async function GET(
 
     const row = result[0];
 
-    // Extract metrics and stability check from stored JSONB
+    // Extract metrics and nested data from stored JSONB
     const metrics = row.metrics as any;
     const stabilityCheck = metrics.stabilityCheck || {
       firstHalf: { expectedValue: 0 },
       secondHalf: { expectedValue: 0 },
       degradation: false,
     };
+    const equityCurve = metrics.equityCurve || [];
+    const tradeDistribution = metrics.tradeDistribution || [];
+    const confidence = metrics.confidence ?? Math.round((1 - parseFloat(row.probability_random)) * 100);
 
-    // Remove stabilityCheck from metrics object
-    const { stabilityCheck: _, ...cleanMetrics } = metrics;
+    // Remove nested data from metrics object
+    const { stabilityCheck: _, equityCurve: _ec, tradeDistribution: _td, confidence: _conf, ...cleanMetrics } = metrics;
 
     return NextResponse.json({
       metrics: cleanMetrics,
       probabilityRandom: parseFloat(row.probability_random),
       verdict: row.verdict,
+      confidence,
       stabilityCheck,
+      equityCurve,
+      tradeDistribution,
     });
   } catch (error: any) {
     console.error('Error fetching result:', error);
