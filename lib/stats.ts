@@ -20,15 +20,30 @@ export interface StrategyMetrics {
   averageLoss: number;
 }
 
+export interface EquityCurvePoint {
+  tradeNumber: number;
+  cumulativeR: number;
+  pnl: number;
+}
+
+export interface TradeDistributionBucket {
+  range: string;
+  count: number;
+  isPositive: boolean;
+}
+
 export interface StrategyResult {
   metrics: StrategyMetrics;
   probabilityRandom: number; // 0-1
   verdict: 'LIKELY_POSITIVE_EDGE' | 'LIKELY_NEGATIVE_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
+  confidence: number; // 0-100 percentage
   stabilityCheck: {
     firstHalf: StrategyMetrics;
     secondHalf: StrategyMetrics;
     degradation: boolean;
   };
+  equityCurve: EquityCurvePoint[];
+  tradeDistribution: TradeDistributionBucket[];
 }
 
 /**
@@ -207,6 +222,106 @@ function stabilityCheck(trades: TradeRow[]): {
 }
 
 /**
+ * Compute equity curve (cumulative R-multiples per trade)
+ */
+function computeEquityCurve(trades: TradeRow[]): EquityCurvePoint[] {
+  const losses = trades.filter(t => t.pnl < 0).map(t => Math.abs(t.pnl));
+  let avgLoss = 1;
+  if (losses.length > 0) {
+    avgLoss = losses.reduce((sum, l) => sum + l, 0) / losses.length;
+  } else {
+    const avgAbsPnl = trades.reduce((sum, t) => sum + Math.abs(t.pnl), 0) / trades.length;
+    avgLoss = avgAbsPnl || 1;
+  }
+
+  let cumR = 0;
+  return trades.map((t, idx) => {
+    const r = t.pnl / avgLoss;
+    cumR += r;
+    return {
+      tradeNumber: idx + 1,
+      cumulativeR: parseFloat(cumR.toFixed(3)),
+      pnl: t.pnl,
+    };
+  });
+}
+
+/**
+ * Compute trade P&L distribution buckets
+ */
+function computeTradeDistribution(trades: TradeRow[]): TradeDistributionBucket[] {
+  const losses = trades.filter(t => t.pnl < 0).map(t => Math.abs(t.pnl));
+  let avgLoss = 1;
+  if (losses.length > 0) {
+    avgLoss = losses.reduce((sum, l) => sum + l, 0) / losses.length;
+  } else {
+    const avgAbsPnl = trades.reduce((sum, t) => sum + Math.abs(t.pnl), 0) / trades.length;
+    avgLoss = avgAbsPnl || 1;
+  }
+
+  const rValues = trades.map(t => t.pnl / avgLoss);
+
+  // Create buckets: <-3R, -3R to -2R, -2R to -1R, -1R to 0, 0 to 1R, 1R to 2R, 2R to 3R, >3R
+  const buckets: TradeDistributionBucket[] = [
+    { range: '< -3R', count: 0, isPositive: false },
+    { range: '-3R to -2R', count: 0, isPositive: false },
+    { range: '-2R to -1R', count: 0, isPositive: false },
+    { range: '-1R to 0', count: 0, isPositive: false },
+    { range: '0 to 1R', count: 0, isPositive: true },
+    { range: '1R to 2R', count: 0, isPositive: true },
+    { range: '2R to 3R', count: 0, isPositive: true },
+    { range: '> 3R', count: 0, isPositive: true },
+  ];
+
+  for (const r of rValues) {
+    if (r < -3) buckets[0].count++;
+    else if (r < -2) buckets[1].count++;
+    else if (r < -1) buckets[2].count++;
+    else if (r < 0) buckets[3].count++;
+    else if (r < 1) buckets[4].count++;
+    else if (r < 2) buckets[5].count++;
+    else if (r < 3) buckets[6].count++;
+    else buckets[7].count++;
+  }
+
+  return buckets;
+}
+
+/**
+ * Calculate confidence score (0-100) based on multiple factors
+ */
+function calculateConfidence(
+  probabilityRandom: number,
+  totalTrades: number,
+  degradation: boolean,
+  expectedValue: number,
+): number {
+  // Base confidence from randomness test (inverted - lower randomness = higher confidence)
+  let confidence = (1 - probabilityRandom) * 100;
+
+  // Penalty for small sample size
+  if (totalTrades < 30) {
+    confidence *= 0.6;
+  } else if (totalTrades < 50) {
+    confidence *= 0.8;
+  } else if (totalTrades < 100) {
+    confidence *= 0.9;
+  }
+
+  // Penalty for degradation
+  if (degradation) {
+    confidence *= 0.8;
+  }
+
+  // Very small EV reduces confidence
+  if (Math.abs(expectedValue) < 0.05) {
+    confidence *= 0.7;
+  }
+
+  return Math.round(Math.max(0, Math.min(100, confidence)));
+}
+
+/**
  * Analyze strategy and return complete result
  */
 export function analyzeStrategy(trades: TradeRow[], rule: StrategyRule): StrategyResult {
@@ -223,6 +338,8 @@ export function analyzeStrategy(trades: TradeRow[], rule: StrategyRule): Strateg
   const metrics = calculateMetrics(filteredTrades);
   const probabilityRandom = monteCarloTest(filteredTrades, metrics.expectedValue);
   const stability = stabilityCheck(filteredTrades);
+  const equityCurve = computeEquityCurve(filteredTrades);
+  const tradeDistribution = computeTradeDistribution(filteredTrades);
 
   // Determine verdict based on statistical significance AND direction of edge
   let verdict: 'LIKELY_POSITIVE_EDGE' | 'LIKELY_NEGATIVE_EDGE' | 'NOT_STATISTICALLY_RELIABLE';
@@ -238,10 +355,20 @@ export function analyzeStrategy(trades: TradeRow[], rule: StrategyRule): Strateg
     verdict = 'NOT_STATISTICALLY_RELIABLE';
   }
 
+  const confidence = calculateConfidence(
+    probabilityRandom,
+    metrics.totalTrades,
+    stability.degradation,
+    metrics.expectedValue,
+  );
+
   return {
     metrics,
     probabilityRandom,
     verdict,
+    confidence,
     stabilityCheck: stability,
+    equityCurve,
+    tradeDistribution,
   };
 }

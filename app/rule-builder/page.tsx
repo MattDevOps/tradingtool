@@ -243,10 +243,10 @@ function StrategyCheckContent() {
 
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            Define your strategy
+            Test if your strategy has an edge
           </h1>
           <p className="text-lg text-gray-600 max-w-xl mx-auto">
-            Filter your trades to test a specific setup. All fields are optional—leave them blank to analyze everything.
+            Filter your trades to validate a specific setup — or leave blank to analyze everything.
           </p>
         </div>
 
