@@ -670,22 +670,72 @@ function ResultsContent() {
         )}
 
         {/* ── InsightTrader CTA ────────────────────────────────────── */}
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 md:p-8 mb-6 text-center">
-          <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-2">Coming Soon</p>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-            Want full analytics for every trade?
-          </h2>
-          <p className="text-gray-400 text-sm mb-4 max-w-lg mx-auto">
-            Advanced strategy validation, journaling, pattern detection, and more.
-          </p>
-          <a
-            href={process.env.NEXT_PUBLIC_EXTERNAL_LINK_URL || 'https://insighttrader.io'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-          >
-            Learn about InsightTrader →
-          </a>
+        <div className="relative overflow-hidden rounded-2xl mb-6 border border-white/10">
+          {/* Background with subtle animated gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-gray-900 to-purple-950" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.15),_transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(168,85,247,0.1),_transparent_60%)]" />
+
+          <div className="relative px-6 py-8 md:px-10 md:py-10">
+            {/* Top badge */}
+            <div className="flex justify-center mb-5">
+              <span className="inline-flex items-center gap-1.5 bg-indigo-500/15 border border-indigo-400/20 text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse" />
+                Coming Soon
+              </span>
+            </div>
+
+            {/* Headline — contextual to their results */}
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-3 leading-tight">
+              {result.verdict === 'LIKELY_POSITIVE_EDGE'
+                ? 'You found an edge. Now protect it.'
+                : result.verdict === 'LIKELY_NEGATIVE_EDGE'
+                ? 'Turn insights into a better strategy.'
+                : 'Go deeper with every trade you take.'}
+            </h2>
+            <p className="text-gray-400 text-center text-sm md:text-base max-w-xl mx-auto mb-8">
+              {result.verdict === 'LIKELY_POSITIVE_EDGE'
+                ? 'Track whether your edge holds over time with continuous monitoring, journaling, and pattern detection.'
+                : result.verdict === 'LIKELY_NEGATIVE_EDGE'
+                ? 'Identify exactly where your strategy breaks down and discover the patterns behind your best and worst trades.'
+                : 'Build statistical confidence faster with advanced analytics designed for serious traders.'}
+            </p>
+
+            {/* Feature grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/5">
+                <div className="text-2xl mb-2">📊</div>
+                <h3 className="text-white font-semibold text-sm mb-1">Live Edge Tracking</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">Monitor your strategy&apos;s edge in real-time as you add new trades.</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/5">
+                <div className="text-2xl mb-2">🔍</div>
+                <h3 className="text-white font-semibold text-sm mb-1">Pattern Detection</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">Automatically surface what&apos;s working and what&apos;s costing you money.</p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/5">
+                <div className="text-2xl mb-2">📓</div>
+                <h3 className="text-white font-semibold text-sm mb-1">Trade Journal</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">Log context, emotions, and setups — then see what actually matters.</p>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center">
+              <a
+                href={process.env.NEXT_PUBLIC_EXTERNAL_LINK_URL || 'https://insighttrader.io'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-semibold px-8 py-3.5 rounded-xl transition-all text-sm shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+              >
+                Join the InsightTrader waitlist
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+              <p className="text-gray-600 text-xs mt-3">Be first to get access when we launch.</p>
+            </div>
+          </div>
         </div>
 
         {/* ── FOOTER ACTIONS ───────────────────────────────────────── */}
