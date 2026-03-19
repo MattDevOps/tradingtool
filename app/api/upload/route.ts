@@ -5,7 +5,7 @@ import { parseCSV, autoDetectColumns, normalizeTrades, validateClosedTrades, Det
 import { parseThinkOrSwimCSV, isThinkOrSwimStatement } from '@/lib/thinkorswim-parser';
 import { sql } from '@/lib/db';
 import { initDatabase } from '@/lib/db';
-import { sendAdminNotification } from '@/lib/email';
+import { sendAdminNotification, sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -203,6 +203,17 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
       }
     ).catch(err => console.error('Failed to send upload notification:', err));
+
+    // Send welcome email only on first upload (non-blocking)
+    if (session.user.email) {
+      sql`SELECT COUNT(*) as count FROM trade_uploads WHERE user_id = ${session.user.id}`
+        .then(rows => {
+          if (parseInt(rows[0].count) === 1) {
+            return sendWelcomeEmail(session.user.email!);
+          }
+        })
+        .catch(err => console.error('Failed to send welcome email:', err));
+    }
 
     return NextResponse.json({
       success: true,

@@ -252,6 +252,100 @@ export async function sendPasswordResetEmail(
   }
 }
 
+// Send welcome email with InsightTrader upsell after first upload
+export async function sendWelcomeEmail(email: string) {
+  const hasResend = !!process.env.RESEND_API_KEY;
+  const hasSMTP = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+
+  if (!hasResend && !hasSMTP) {
+    console.warn('No email service configured. Cannot send welcome email.');
+    return { success: false, error: 'Email service not configured' };
+  }
+
+  const appName = getAppName();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const subject = `Welcome to ${appName} — Your trades are being analyzed!`;
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 26px; font-weight: 700;">${appName}</h1>
+      </div>
+
+      <div style="background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 32px;">
+        <p style="color: #1f2937; font-size: 16px; margin-top: 0;">Hello,</p>
+
+        <p style="color: #4b5563; font-size: 15px; line-height: 1.7;">
+          Thank you for signing up for our free trading analysis tool! We're crunching the numbers on your trades right now.
+        </p>
+
+        <p style="color: #4b5563; font-size: 15px; line-height: 1.7;">
+          If you want to really improve your trading and take your skills to the next level, we recommend checking out
+          <a href="https://insighttrader.io" style="color: #667eea; font-weight: 600; text-decoration: none;">InsightTrader</a> —
+          our full-featured platform with trade journaling, pattern detection, and real-time edge tracking to help you become a consistently profitable trader.
+        </p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="https://insighttrader.io" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+            Explore InsightTrader →
+          </a>
+        </div>
+
+        <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin-bottom: 0;">
+          All the best,<br>
+          <span style="font-weight: 600;">The ${appName} &amp; InsightTrader Team</span>
+        </p>
+      </div>
+
+      <div style="text-align: center; margin-top: 24px; padding-top: 16px;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+          You received this email because you uploaded trades on <a href="${appUrl}" style="color: #9ca3af;">${appName}</a>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    if (process.env.RESEND_API_KEY) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      await resend.emails.send({
+        from: process.env.ADMIN_EMAIL ? `${appName} <${process.env.ADMIN_EMAIL}>` : `${appName} <help@insighttrader.io>`,
+        to: email,
+        subject,
+        html,
+      });
+      return { success: true };
+    }
+
+    const transporter = getEmailTransporter();
+    if (!transporter) {
+      throw new Error('Email transporter not configured');
+    }
+
+    const fromEmail = process.env.ADMIN_EMAIL || 'help@insighttrader.io';
+
+    await transporter.sendMail({
+      from: `"${appName}" <${fromEmail}>`,
+      to: email,
+      subject,
+      html,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 export async function sendStrategyReport(
   email: string,
   report: StrategyReport
