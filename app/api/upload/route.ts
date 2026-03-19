@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
     // Send welcome email only on first upload (non-blocking)
     if (session.user.email) {
       sql`SELECT COUNT(*) as count FROM trade_uploads WHERE user_id = ${session.user.id}`
-        .then(rows => {
+        .then((rows: any[]) => {
           if (parseInt(rows[0].count) === 1) {
             return sendWelcomeEmail(session.user.email!);
           }
