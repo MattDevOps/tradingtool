@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         name: validated.name || 'Not provided',
         timestamp: new Date().toISOString(),
       }
-    ).catch(err => console.error('Failed to send signup notification:', err));
+    ).catch((err: unknown) => console.error('Failed to send signup notification:', err));
 
     return NextResponse.json({
       success: true,
