@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
             fileName: file.name,
             timestamp: new Date().toISOString(),
           }
-        ).catch(err => console.error('Failed to send error notification:', err));
+        ).catch((err: unknown) => console.error('Failed to send error notification:', err));
         
         return NextResponse.json(
           { error: error.message || 'Failed to parse ThinkOrSwim Account Statement' },
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
         fileName: file.name,
         timestamp: new Date().toISOString(),
       }
-    ).catch(err => console.error('Failed to send upload notification:', err));
+    ).catch((err: unknown) => console.error('Failed to send upload notification:', err));
 
     // Send welcome email only on first upload (non-blocking)
     if (session.user.email) {
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
             return sendWelcomeEmail(session.user.email!);
           }
         })
-        .catch(err => console.error('Failed to send welcome email:', err));
+        .catch((err: unknown) => console.error('Failed to send welcome email:', err));
     }
 
     return NextResponse.json({
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
         errorStack: error.stack,
         timestamp: new Date().toISOString(),
       }
-    ).catch(err => console.error('Failed to send error notification:', err));
+    ).catch((err: unknown) => console.error('Failed to send error notification:', err));
     
     return NextResponse.json(
       { error: error.message || 'Failed to process CSV file' },
