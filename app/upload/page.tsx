@@ -59,7 +59,7 @@ export default function UploadPage() {
       }
 
       setDetectionResult(data);
-      
+
       // Store symbols in sessionStorage for temp uploads (no DB)
       if (data.symbols && Array.isArray(data.symbols)) {
         const symbolsWithCounts = data.symbols.map((symbol: string) => {
@@ -69,7 +69,7 @@ export default function UploadPage() {
         });
         sessionStorage.setItem(`upload-${data.uploadId}-symbols`, JSON.stringify(symbolsWithCounts));
       }
-      
+
       // Redirect to rule builder with upload ID
       router.push(`/rule-builder?uploadId=${data.uploadId}`);
     } catch (err: any) {
@@ -80,8 +80,8 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 dark:from-gray-950 dark:via-indigo-950/30 dark:to-purple-950/20">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center">
@@ -90,16 +90,16 @@ export default function UploadPage() {
                 alt="Strategy Reality Check"
                 width={400}
                 height={100}
-                className="h-16 md:h-20 lg:h-24 w-auto"
+                className="h-16 md:h-20 lg:h-24 w-auto dark:brightness-0 dark:invert"
                 style={{ mixBlendMode: 'multiply' }}
               />
             </Link>
             {session && (
               <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">{session.user.email}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{session.user.email}</span>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-medium"
                 >
                   Sign Out
                 </button>
@@ -111,62 +111,62 @@ export default function UploadPage() {
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Upload Your Trade History
           </h1>
-          <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
             Export your ThinkOrSwim account statement and we'll automatically detect your trades
           </p>
         </div>
-        
+
         {/* Info Banner */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/50 rounded-xl shadow-soft">
+        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border border-indigo-200/50 dark:border-indigo-700/50 rounded-xl shadow-soft">
           <div className="flex items-start gap-3">
             <span className="text-xl">ℹ️</span>
-            <p className="text-sm text-indigo-900">
+            <p className="text-sm text-indigo-900 dark:text-indigo-200">
               <span className="font-semibold">Currently supports ThinkOrSwim trade statements.</span> More brokers coming soon.
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-5 bg-red-50 border-2 border-red-200 rounded-xl shadow-soft">
+          <div className="mb-6 p-5 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-xl shadow-soft">
             <div className="flex items-start gap-3">
               <span className="text-2xl">❌</span>
               <div className="flex-1">
-                <p className="text-red-800 font-semibold mb-1">Upload Error</p>
-                <p className="text-red-700">{error}</p>
+                <p className="text-red-800 dark:text-red-300 font-semibold mb-1">Upload Error</p>
+                <p className="text-red-700 dark:text-red-300">{error}</p>
               </div>
             </div>
           </div>
         )}
 
         {detectionResult && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-soft">
+          <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-green-200 dark:border-green-700 rounded-xl shadow-soft">
             <div className="flex items-start gap-4">
               <div className="text-3xl">✅</div>
               <div className="flex-1">
-                <p className="font-bold text-green-900 mb-3 text-lg">File processed successfully!</p>
+                <p className="font-bold text-green-900 dark:text-green-200 mb-3 text-lg">File processed successfully!</p>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-green-700 font-medium">Detected columns:</span>
-                    <span className="text-green-800 font-semibold">Symbol · Open time · Close time · Side · P&L</span>
+                    <span className="text-green-700 dark:text-green-300 font-medium">Detected columns:</span>
+                    <span className="text-green-800 dark:text-green-300 font-semibold">Symbol · Open time · Close time · Side · P&L</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-green-700 font-medium">Trades found:</span>
-                    <span className="text-green-800 font-bold text-xl">{detectionResult.tradeCount}</span>
+                    <span className="text-green-700 dark:text-green-300 font-medium">Trades found:</span>
+                    <span className="text-green-800 dark:text-green-300 font-bold text-xl">{detectionResult.tradeCount}</span>
                   </div>
                   {detectionResult.dateRange && (
                     <div className="flex items-center gap-2">
-                      <span className="text-green-700 font-medium">Date range:</span>
-                      <span className="text-green-800 font-semibold">
+                      <span className="text-green-700 dark:text-green-300 font-medium">Date range:</span>
+                      <span className="text-green-800 dark:text-green-300 font-semibold">
                         {new Date(detectionResult.dateRange.start).toLocaleDateString()} - {new Date(detectionResult.dateRange.end).toLocaleDateString()}
                       </span>
                     </div>
                   )}
                 </div>
-                <div className="mt-4 pt-4 border-t border-green-200">
-                  <p className="text-sm text-green-700">
+                <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700">
+                  <p className="text-sm text-green-700 dark:text-green-300">
                     Redirecting to strategy builder...
                   </p>
                 </div>
@@ -176,12 +176,12 @@ export default function UploadPage() {
         )}
 
         {/* File Upload Area */}
-        <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 md:p-12 shadow-soft mb-6">
+        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 md:p-12 shadow-soft mb-6">
           <div
             className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
               file
-                ? 'border-indigo-400 bg-gradient-to-br from-indigo-50/50 to-purple-50/50'
-                : 'border-gray-300 hover:border-indigo-400 hover:bg-gradient-to-br hover:from-indigo-50/30 hover:to-purple-50/30'
+                ? 'border-indigo-400 dark:border-indigo-500 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/30 dark:to-purple-900/30'
+                : 'border-gray-300 dark:border-gray-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-gradient-to-br hover:from-indigo-50/30 hover:to-purple-50/30 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -194,13 +194,13 @@ export default function UploadPage() {
               onChange={handleFileSelect}
               className="hidden"
             />
-            
+
             {file ? (
               <div className="space-y-4">
                 <div className="text-6xl mb-4">📄</div>
                 <div>
-                  <p className="text-xl font-bold text-gray-900 mb-2">{file.name}</p>
-                  <p className="text-sm text-gray-600 font-medium">
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{file.name}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                     {(file.size / 1024).toFixed(2)} KB
                   </p>
                 </div>
@@ -219,20 +219,20 @@ export default function UploadPage() {
               <div className="space-y-4">
                 <div className="text-6xl mb-4">📁</div>
                 <div>
-                  <p className="text-xl font-bold text-gray-900 mb-2">
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                     Drag & drop your CSV file here
                   </p>
-                  <p className="text-gray-600 mb-6">or click to browse</p>
-                  <button 
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">or click to browse</p>
+                  <button
                     type="button"
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     Choose File
                   </button>
                 </div>
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <p className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">How to export from ThinkOrSwim:</p>
-                  <p className="text-sm text-gray-600">
+                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">How to export from ThinkOrSwim:</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Monitor → Account Statement → Export CSV
                   </p>
                 </div>
@@ -269,19 +269,19 @@ export default function UploadPage() {
           <div className="mt-6 text-center">
             <div className="inline-flex flex-col items-center gap-3">
               <div className="animate-spin rounded-full h-10 w-10 border-3 border-indigo-500 border-t-transparent"></div>
-              <p className="text-gray-700 font-medium">Scanning your file and detecting trades...</p>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">Scanning your file and detecting trades...</p>
             </div>
           </div>
         )}
 
         {/* Help Section */}
         {!file && !uploading && (
-          <div className="mt-12 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-soft">
+          <div className="mt-12 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-6 shadow-soft">
             <div className="flex items-start gap-3">
               <span className="text-2xl">💡</span>
               <div>
-                <p className="font-semibold text-gray-900 mb-2">What we analyze:</p>
-                <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">What we analyze:</p>
+                <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
                   <li>Closed trades with entry and exit times</li>
                   <li>Profit and loss for each trade</li>
                   <li>Trade direction (long/short)</li>

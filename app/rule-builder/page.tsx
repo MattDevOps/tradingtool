@@ -57,7 +57,7 @@ function StrategyCheckContent() {
     if (!uploadId) return;
 
     setIsLoadingSymbols(true);
-    
+
     // Check sessionStorage first (for temp uploads)
     const cachedSymbols = sessionStorage.getItem(`upload-${uploadId}-symbols`);
     if (cachedSymbols) {
@@ -72,7 +72,7 @@ function StrategyCheckContent() {
         // Fall through to API fetch
       }
     }
-    
+
     // Fetch from API (for DB-backed uploads)
     fetch(`/api/uploads/${uploadId}/symbols`)
       .then(res => res.json())
@@ -97,7 +97,7 @@ function StrategyCheckContent() {
     if (!uploadId) return;
 
     setIsLoadingCount(true);
-    
+
     // Fetch count and breakdown
     fetch('/api/strategy/preview-count', {
       method: 'POST',
@@ -212,8 +212,8 @@ function StrategyCheckContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 dark:from-gray-950 dark:via-indigo-950/30 dark:to-purple-950/20">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center">
@@ -222,7 +222,7 @@ function StrategyCheckContent() {
                 alt="Strategy Reality Check"
                 width={400}
                 height={100}
-                className="h-16 md:h-20 lg:h-24 w-auto"
+                className="h-16 md:h-20 lg:h-24 w-auto dark:brightness-0 dark:invert"
                 style={{ mixBlendMode: 'multiply' }}
               />
             </Link>
@@ -232,43 +232,43 @@ function StrategyCheckContent() {
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
         {/* ThinkOrSwim limitation notice */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/50 rounded-xl shadow-soft">
+        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border border-indigo-200/50 dark:border-indigo-700/50 rounded-xl shadow-soft">
           <div className="flex items-start gap-3">
             <span className="text-xl">ℹ️</span>
-            <p className="text-sm text-indigo-900">
+            <p className="text-sm text-indigo-900 dark:text-indigo-200">
               <span className="font-semibold">Currently supports ThinkOrSwim trade statements.</span> More brokers coming soon.
             </p>
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             Test if your strategy has an edge
           </h1>
-          <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
             Filter your trades to validate a specific setup — or leave blank to analyze everything.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl shadow-soft">
-            <p className="text-red-800 font-medium">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-xl shadow-soft">
+            <p className="text-red-800 dark:text-red-300 font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 md:p-10 shadow-soft">
+        <form onSubmit={handleSubmit} className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8 md:p-10 shadow-soft">
           <div className="space-y-8">
             {/* Instrument Selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                 <span className="text-lg">📈</span>
                 <span>Which instrument?</span>
-                <span className="text-xs font-normal text-gray-500">(optional)</span>
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(optional)</span>
               </label>
               <select
                 value={rule.symbol || ''}
                 onChange={(e) => setRule({ ...rule, symbol: e.target.value || null })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm hover:shadow-md"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium transition-all shadow-sm hover:shadow-md"
                 disabled={isLoadingSymbols}
               >
                 <option value="" className="text-gray-900">
@@ -280,17 +280,17 @@ function StrategyCheckContent() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-2 ml-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-1">
                 Choose a specific ticker or analyze all instruments together
               </p>
             </div>
 
             {/* Direction Selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                 <span className="text-lg">↕️</span>
                 <span>Trade direction</span>
-                <span className="text-xs font-normal text-gray-500">(optional)</span>
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(optional)</span>
               </label>
               <div className="flex gap-3">
                 <button
@@ -299,7 +299,7 @@ function StrategyCheckContent() {
                   className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
                     rule.direction === 'LONG'
                       ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-md'
                   }`}
                 >
                   Long only
@@ -310,7 +310,7 @@ function StrategyCheckContent() {
                   className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
                     rule.direction === 'SHORT'
                       ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-md'
                   }`}
                 >
                   Short only
@@ -321,50 +321,50 @@ function StrategyCheckContent() {
                   className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm ${
                     rule.direction === 'BOTH'
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-md'
                   }`}
                 >
                   Both
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2 ml-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-1">
                 Filter by long positions, short positions, or include both
               </p>
             </div>
 
             {/* Live Preview - Redesigned */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200/50 rounded-xl p-6 shadow-soft">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-2 border-indigo-200/50 dark:border-indigo-700/50 rounded-xl p-6 shadow-soft">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-2xl">🔍</span>
-                <h3 className="text-lg font-bold text-gray-900">Live Preview</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Live Preview</h3>
               </div>
-              
+
               {isLoadingCount ? (
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-500 border-t-transparent"></div>
                   <span className="text-sm">Calculating matches...</span>
                 </div>
               ) : (
                 <>
                   <div className="mb-4">
-                    <p className="text-sm text-gray-700 mb-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                       Based on your current filters:
                     </p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         {matchCount !== null ? matchCount : '—'}
                       </span>
-                      <span className="text-lg text-gray-600 font-medium">trades will be analyzed</span>
+                      <span className="text-lg text-gray-600 dark:text-gray-400 font-medium">trades will be analyzed</span>
                     </div>
                     {matchBreakdown && matchCount !== null && matchCount > 0 && (
                       <div className="mt-3 flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                          <span className="text-gray-700 font-medium">{matchBreakdown.longs} longs</span>
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">{matchBreakdown.longs} longs</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                          <span className="text-gray-700 font-medium">{matchBreakdown.shorts} shorts</span>
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">{matchBreakdown.shorts} shorts</span>
                         </div>
                       </div>
                     )}
@@ -372,12 +372,12 @@ function StrategyCheckContent() {
 
                   {/* Sample Trades Preview */}
                   {previewTrades.length > 0 && (
-                    <div className="mt-5 pt-5 border-t border-indigo-200/50">
-                      <p className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Sample trades</p>
+                    <div className="mt-5 pt-5 border-t border-indigo-200/50 dark:border-indigo-700/50">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Sample trades</p>
                       <div className="space-y-2">
                         {previewTrades.map((trade, idx) => (
-                          <div key={idx} className="flex justify-between items-center p-2 bg-white/60 rounded-lg text-xs font-mono">
-                            <span className="text-gray-700">
+                          <div key={idx} className="flex justify-between items-center p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg text-xs font-mono">
+                            <span className="text-gray-700 dark:text-gray-300">
                               {trade.date} <span className="font-semibold">{trade.symbol}</span> {trade.side}
                             </span>
                             <span className={`font-bold ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -387,7 +387,7 @@ function StrategyCheckContent() {
                         ))}
                       </div>
                       {matchCount !== null && matchCount > previewTrades.length && (
-                        <p className="text-xs text-gray-500 mt-3 text-center italic">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center italic">
                           Showing {previewTrades.length} of {matchCount} matching trades
                         </p>
                       )}
@@ -398,11 +398,11 @@ function StrategyCheckContent() {
             </div>
 
             {/* Advanced Filters */}
-            <div className="border-t border-gray-200 pt-6">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
               <button
                 type="button"
                 onClick={() => setAdvancedOpen(!advancedOpen)}
-                className="w-full flex items-center justify-between p-4 text-sm font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-all"
+                className="w-full flex items-center justify-between p-4 text-sm font-semibold text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">⚙️</span>
@@ -412,34 +412,34 @@ function StrategyCheckContent() {
               </button>
 
               {advancedOpen && (
-                <div className="mt-4 space-y-6 pl-6 border-l-2 border-indigo-200">
+                <div className="mt-4 space-y-6 pl-6 border-l-2 border-indigo-200 dark:border-indigo-700">
                   {/* Date Range */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                       <span className="text-base">📅</span>
                       <span>Date range</span>
-                      <span className="text-xs font-normal text-gray-500">(optional)</span>
+                      <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(optional)</span>
                     </label>
-                    <p className="text-xs text-gray-600 mb-3 ml-7">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 ml-7">
                       Analyze trades from a specific time period. Useful for testing how your strategy performed in different market conditions.
                     </p>
                     <div className="grid grid-cols-2 gap-4 ml-7">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">Start date</label>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Start date</label>
                         <input
                           type="date"
                           value={rule.startDate || ''}
                           onChange={(e) => setRule({ ...rule, startDate: e.target.value || null })}
-                          className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium transition-all shadow-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">End date</label>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">End date</label>
                         <input
                           type="date"
                           value={rule.endDate || ''}
                           onChange={(e) => setRule({ ...rule, endDate: e.target.value || null })}
-                          className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium transition-all shadow-sm"
                         />
                       </div>
                     </div>
@@ -447,12 +447,12 @@ function StrategyCheckContent() {
 
                   {/* Max Holding Time */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                       <span className="text-base">⏱️</span>
                       <span>Maximum holding time</span>
-                      <span className="text-xs font-normal text-gray-500">(optional)</span>
+                      <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(optional)</span>
                     </label>
-                    <p className="text-xs text-gray-600 mb-3 ml-7">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 ml-7">
                       Filter trades by how long you held them. Useful for testing scalping strategies (short holds) or swing trading setups (longer holds). Enter the maximum minutes a trade was open.
                     </p>
                     <div className="ml-7">
@@ -462,9 +462,9 @@ function StrategyCheckContent() {
                         onChange={(e) => setRule({ ...rule, maxHoldingMinutes: e.target.value ? parseInt(e.target.value) : null })}
                         placeholder="e.g., 15 for 15 minutes"
                         min="1"
-                        className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all shadow-sm"
+                        className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 dark:placeholder-gray-500 font-medium transition-all shadow-sm"
                       />
-                      <div className="mt-2 text-xs text-gray-500 space-y-1">
+                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 space-y-1">
                         <p>💡 <strong>Examples:</strong></p>
                         <p>• 5-15 minutes: Scalping/day trading</p>
                         <p>• 30-60 minutes: Short-term swing</p>
@@ -492,7 +492,7 @@ function StrategyCheckContent() {
                   '🚀 Analyze this strategy'
                 )}
               </button>
-              <p className="text-sm text-gray-500 mt-4 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
                 💡 <strong>Tip:</strong> Leave all filters blank to analyze your entire trading history
               </p>
             </div>
@@ -505,7 +505,7 @@ function StrategyCheckContent() {
 
 export default function StrategyCheckPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">Loading...</div>}>
       <StrategyCheckContent />
     </Suspense>
   );
