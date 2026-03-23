@@ -127,14 +127,14 @@ function TradeDistributionChart({ data }: { data: TradeDistributionBucket[] }) {
     <div className="space-y-1.5">
       {data.map((bucket, idx) => (
         <div key={idx} className="flex items-center gap-2 text-xs">
-          <div className="w-20 text-right text-gray-500 font-mono shrink-0">{bucket.range}</div>
-          <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-20 text-right text-gray-500 dark:text-gray-400 font-mono shrink-0">{bucket.range}</div>
+          <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${bucket.isPositive ? 'bg-green-500' : 'bg-red-400'}`}
               style={{ width: `${(bucket.count / maxCount) * 100}%` }}
             />
           </div>
-          <div className="w-6 text-gray-600 font-medium">{bucket.count}</div>
+          <div className="w-6 text-gray-600 dark:text-gray-400 font-medium">{bucket.count}</div>
         </div>
       ))}
     </div>
@@ -150,12 +150,12 @@ function StabilityChart({ firstHalfEV, secondHalfEV }: { firstHalfEV: number; se
     <div className="space-y-3">
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-gray-600 font-medium">First Half</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">First Half</span>
           <span className={`text-sm font-bold ${firstHalfEV >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {firstHalfEV >= 0 ? '+' : ''}{firstHalfEV.toFixed(2)}R
           </span>
         </div>
-        <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full ${firstHalfEV >= 0 ? 'bg-green-500' : 'bg-red-400'}`}
             style={{ width: barWidth(firstHalfEV) }}
@@ -164,12 +164,12 @@ function StabilityChart({ firstHalfEV, secondHalfEV }: { firstHalfEV: number; se
       </div>
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-gray-600 font-medium">Second Half</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Second Half</span>
           <span className={`text-sm font-bold ${secondHalfEV >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {secondHalfEV >= 0 ? '+' : ''}{secondHalfEV.toFixed(2)}R
           </span>
         </div>
-        <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full ${secondHalfEV >= 0 ? 'bg-green-500' : 'bg-red-400'}`}
             style={{ width: barWidth(secondHalfEV) }}
@@ -200,7 +200,7 @@ function ConfidenceRing({ confidence, size = 120 }: { confidence: number; size?:
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-2xl font-bold" style={{ color }}>{confidence}%</span>
-        <span className="text-[10px] text-gray-500 font-medium">confidence</span>
+        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">confidence</span>
       </div>
     </div>
   );
@@ -264,10 +264,10 @@ function ResultsContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-          <p className="text-gray-600 font-medium">Crunching numbers...</p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">Crunching numbers...</p>
         </div>
       </div>
     );
@@ -275,10 +275,10 @@ function ResultsContent() {
 
   if (error || !result) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-12 max-w-2xl">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p className="text-red-800">{error || 'Failed to load results'}</p>
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-6">
+            <p className="text-red-800 dark:text-red-300">{error || 'Failed to load results'}</p>
             <button
               onClick={() => router.push('/upload')}
               className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
@@ -308,10 +308,10 @@ function ResultsContent() {
       icon: '✅',
       headline: 'Your strategy likely HAS a real edge',
       subtext: 'Your results are statistically significant — this is unlikely to be luck.',
-      bgGradient: 'from-green-50 to-emerald-50',
-      borderColor: 'border-green-300',
-      textColor: 'text-green-800',
-      badgeColor: 'bg-green-100 text-green-800',
+      bgGradient: 'from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30',
+      borderColor: 'border-green-300 dark:border-green-700',
+      textColor: 'text-green-800 dark:text-green-300',
+      badgeColor: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
       whatToDo: [
         'Keep trading this strategy consistently',
         'Consider gradually increasing position size',
@@ -323,10 +323,10 @@ function ResultsContent() {
       icon: '⚠️',
       headline: 'Your strategy is losing money',
       subtext: 'The data shows a consistent negative pattern — this needs to change.',
-      bgGradient: 'from-orange-50 to-amber-50',
-      borderColor: 'border-orange-300',
-      textColor: 'text-orange-800',
-      badgeColor: 'bg-orange-100 text-orange-800',
+      bgGradient: 'from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30',
+      borderColor: 'border-orange-300 dark:border-orange-700',
+      textColor: 'text-orange-800 dark:text-orange-300',
+      badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300',
       whatToDo: [
         'Stop trading this strategy as-is',
         'Review your risk management and stop losses',
@@ -338,10 +338,10 @@ function ResultsContent() {
       icon: '🔍',
       headline: 'Not enough evidence yet',
       subtext: 'We can\'t tell if this is skill or luck — you need more trades.',
-      bgGradient: 'from-gray-50 to-slate-50',
-      borderColor: 'border-gray-300',
-      textColor: 'text-gray-800',
-      badgeColor: 'bg-gray-100 text-gray-800',
+      bgGradient: 'from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-slate-950/30',
+      borderColor: 'border-gray-300 dark:border-gray-700',
+      textColor: 'text-gray-800 dark:text-gray-200',
+      badgeColor: 'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-200',
       whatToDo: [
         'Collect more trades (aim for 50–100+)',
         'Keep tracking your results consistently',
@@ -351,15 +351,15 @@ function ResultsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
             ← Back to home
           </Link>
           <Link
             href={`/rule-builder?uploadId=${uploadId}`}
-            className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
           >
             Test another strategy →
           </Link>
@@ -374,7 +374,7 @@ function ResultsContent() {
           <h1 className={`text-3xl md:text-4xl font-bold mb-3 ${verdictConfig.textColor}`}>
             {verdictConfig.headline}
           </h1>
-          <p className="text-gray-600 text-lg mb-6 max-w-xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 text-lg mb-6 max-w-xl mx-auto">
             {verdictConfig.subtext}
           </p>
 
@@ -386,29 +386,29 @@ function ResultsContent() {
                   {result.metrics.totalTrades} trades analyzed
                 </span>
               </div>
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 Expected Value: <span className={`font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   {result.metrics.expectedValue >= 0 ? '+' : ''}{result.metrics.expectedValue.toFixed(2)}R
                 </span>
               </div>
-              <div className="text-sm text-gray-700">
-                Win Rate: <span className="font-bold text-gray-900">{(result.metrics.winRate * 100).toFixed(1)}%</span>
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                Win Rate: <span className="font-bold text-gray-900 dark:text-gray-100">{(result.metrics.winRate * 100).toFixed(1)}%</span>
               </div>
-              <div className="text-sm text-gray-700">
-                Profit Factor: <span className="font-bold text-gray-900">{result.metrics.profitFactor.toFixed(2)}</span>
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                Profit Factor: <span className="font-bold text-gray-900 dark:text-gray-100">{result.metrics.profitFactor.toFixed(2)}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── WHAT TO DO NEXT ──────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
             <span>💡</span> What you should do next
           </h2>
           <ul className="space-y-2">
             {verdictConfig.whatToDo.map((item, idx) => (
-              <li key={idx} className="text-gray-700 flex items-start gap-2">
+              <li key={idx} className="text-gray-700 dark:text-gray-300 flex items-start gap-2">
                 <span className="text-indigo-500 mt-0.5 font-bold">{idx + 1}.</span>
                 <span>{item}</span>
               </li>
@@ -418,79 +418,79 @@ function ResultsContent() {
 
         {/* ── EQUITY CURVE ─────────────────────────────────────────── */}
         {result.equityCurve && result.equityCurve.length > 1 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
               <span>📈</span> Equity Curve
             </h2>
-            <p className="text-xs text-gray-500 mb-4">Cumulative performance in R-multiples across all trades</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Cumulative performance in R-multiples across all trades</p>
             <EquityCurveChart data={result.equityCurve} />
           </div>
         )}
 
         {/* ── KEY METRICS GRID ─────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <span>📊</span> Key Metrics
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Expected Value</div>
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Value</div>
               <div className={`text-xl font-bold ${result.metrics.expectedValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {result.metrics.expectedValue >= 0 ? '+' : ''}{result.metrics.expectedValue.toFixed(2)}R
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">avg $ per trade (in risk units)</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">avg $ per trade (in risk units)</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Win Rate</div>
-              <div className="text-xl font-bold text-gray-900">
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Win Rate</div>
+              <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {(result.metrics.winRate * 100).toFixed(1)}%
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">% of trades that were profitable</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">% of trades that were profitable</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Profit Factor</div>
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit Factor</div>
               <div className={`text-xl font-bold ${result.metrics.profitFactor >= 1 ? 'text-green-600' : 'text-red-600'}`}>
                 {result.metrics.profitFactor.toFixed(2)}
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">total wins ÷ total losses</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">total wins ÷ total losses</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Luck Probability</div>
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Luck Probability</div>
               <div className={`text-xl font-bold ${result.probabilityRandom < 0.2 ? 'text-green-600' : result.probabilityRandom < 0.5 ? 'text-yellow-600' : 'text-red-600'}`}>
                 {(result.probabilityRandom * 100).toFixed(0)}%
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">chance results are random</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">chance results are random</div>
             </div>
           </div>
         </div>
 
         {/* ── TRADE DISTRIBUTION ───────────────────────────────────── */}
         {result.tradeDistribution && result.tradeDistribution.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
               <span>📊</span> Trade Distribution
             </h2>
-            <p className="text-xs text-gray-500 mb-4">How your trades are distributed by size (in R-multiples)</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">How your trades are distributed by size (in R-multiples)</p>
             <TradeDistributionChart data={result.tradeDistribution} />
           </div>
         )}
 
         {/* ── STRATEGY STABILITY ───────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
             <span>📉</span> Strategy Stability
           </h2>
-          <p className="text-xs text-gray-500 mb-4">Comparing first half vs second half of your trades</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Comparing first half vs second half of your trades</p>
           {result.stabilityCheck.degradation && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-orange-800 font-medium">
+            <div className="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg p-3 mb-4">
+              <p className="text-sm text-orange-800 dark:text-orange-300 font-medium">
                 ⚠️ Performance got worse in the second half — your strategy may be degrading
               </p>
             </div>
           )}
           {!result.stabilityCheck.degradation && result.metrics.expectedValue > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-green-800 font-medium">
+            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-3 mb-4">
+              <p className="text-sm text-green-800 dark:text-green-300 font-medium">
                 ✅ Performance stayed consistent — good sign of a stable strategy
               </p>
             </div>
@@ -503,11 +503,11 @@ function ResultsContent() {
 
         {/* ── STRENGTHS & WEAKNESSES ───────────────────────────────── */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
               <span>💪</span> What You Did Well
             </h2>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               {result.metrics.expectedValue > 0 && (
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 mt-0.5">✓</span>
@@ -554,11 +554,11 @@ function ResultsContent() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
               <span>🔧</span> What Needs Work
             </h2>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               {result.metrics.expectedValue < 0 && (
                 <li className="flex items-start gap-2">
                   <span className="text-orange-600 mt-0.5">•</span>
@@ -612,23 +612,23 @@ function ResultsContent() {
         </div>
 
         {/* ── TRADE BREAKDOWN ──────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="font-bold text-gray-900 mb-4">Trade Breakdown</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Trade Breakdown</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <div className="text-gray-500 mb-1">Winning Trades</div>
+              <div className="text-gray-500 dark:text-gray-400 mb-1">Winning Trades</div>
               <div className="text-green-600 font-bold text-lg">{result.metrics.winningTrades}</div>
             </div>
             <div>
-              <div className="text-gray-500 mb-1">Losing Trades</div>
+              <div className="text-gray-500 dark:text-gray-400 mb-1">Losing Trades</div>
               <div className="text-red-600 font-bold text-lg">{result.metrics.losingTrades}</div>
             </div>
             <div>
-              <div className="text-gray-500 mb-1">Average Win</div>
+              <div className="text-gray-500 dark:text-gray-400 mb-1">Average Win</div>
               <div className="text-green-600 font-bold text-lg">${result.metrics.averageWin.toFixed(2)}</div>
             </div>
             <div>
-              <div className="text-gray-500 mb-1">Average Loss</div>
+              <div className="text-gray-500 dark:text-gray-400 mb-1">Average Loss</div>
               <div className="text-red-600 font-bold text-lg">${Math.abs(result.metrics.averageLoss).toFixed(2)}</div>
             </div>
           </div>
@@ -636,9 +636,9 @@ function ResultsContent() {
 
         {/* ── EMAIL REPORT ─────────────────────────────────────────── */}
         {!emailSubmitted && session?.user?.email && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 mb-6">
-            <h2 className="font-bold text-gray-900 mb-2">📧 Get your full strategy report</h2>
-            <p className="text-sm text-gray-600 mb-4">Detailed stats, stability analysis, and actionable insights — straight to your inbox.</p>
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-6 mb-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-2">📧 Get your full strategy report</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Detailed stats, stability analysis, and actionable insights — straight to your inbox.</p>
             <button
               onClick={handleSendReport}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
@@ -649,9 +649,9 @@ function ResultsContent() {
         )}
 
         {!emailSubmitted && !session?.user?.email && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 mb-6">
-            <h2 className="font-bold text-gray-900 mb-2">📧 Get your full strategy report</h2>
-            <p className="text-sm text-gray-600 mb-4">Sign in to get detailed stats, stability analysis, and a downloadable report emailed to you.</p>
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-6 mb-6">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-2">📧 Get your full strategy report</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Sign in to get detailed stats, stability analysis, and a downloadable report emailed to you.</p>
             <Link
               href="/login"
               className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg transition-colors text-center"
@@ -662,8 +662,8 @@ function ResultsContent() {
         )}
 
         {emailSubmitted && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <p className="text-green-800 text-sm text-center font-medium">
+          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-4 mb-6">
+            <p className="text-green-800 dark:text-green-300 text-sm text-center font-medium">
               ✅ Report sent! Check your email.
             </p>
           </div>
@@ -742,13 +742,13 @@ function ResultsContent() {
         <div className="flex items-center justify-center gap-6 pt-4">
           <Link
             href={`/rule-builder?uploadId=${uploadId}`}
-            className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
           >
             Test another strategy →
           </Link>
           <Link
             href="/upload"
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
             Upload new trades
           </Link>
@@ -761,10 +761,10 @@ function ResultsContent() {
 export default function ResultsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     }>
