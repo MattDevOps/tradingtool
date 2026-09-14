@@ -28,7 +28,7 @@ npx playwright test thinkorswim-upload
 
 ## Test Data
 
-Tests use the real ThinkOrSwim CSV file: `2026-02-10-AccountStatement.csv`
+Tests use a synthetic ThinkOrSwim-format CSV: `sample-thinkorswim-statement.csv`
 
 ## Configuration
 

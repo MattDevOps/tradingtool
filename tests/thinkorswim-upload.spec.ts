@@ -28,13 +28,13 @@ test.describe('ThinkOrSwim CSV Upload Flow', () => {
     await expect(page.locator('h1')).toContainText('Upload Your ThinkOrSwim Trade History');
 
     // Read the test CSV file
-    const csvPath = join(process.cwd(), '2026-02-10-AccountStatement.csv');
+    const csvPath = join(process.cwd(), 'sample-thinkorswim-statement.csv');
     const csvContent = readFileSync(csvPath, 'utf-8');
 
     // Upload file
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
-      name: '2026-02-10-AccountStatement.csv',
+      name: 'sample-thinkorswim-statement.csv',
       mimeType: 'text/csv',
       buffer: Buffer.from(csvContent),
     });

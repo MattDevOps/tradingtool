@@ -68,3 +68,8 @@ next-env.d.ts
 # CSV files (may contain sensitive trading data)
 *.csv
 !*.csv.example
+!sample-thinkorswim-statement.csv
+
+# Test output
+playwright-report/
+test-results/

@@ -14,7 +14,7 @@ config({ path: resolve(process.cwd(), '.env.local') });
 async function main() {
   try {
     console.log('Reading ThinkOrSwim CSV file...');
-    const csvText = readFileSync('2026-02-10-AccountStatement.csv', 'utf-8');
+    const csvText = readFileSync('sample-thinkorswim-statement.csv', 'utf-8');
     
     console.log('Parsing ThinkOrSwim CSV...');
     const trades = parseThinkOrSwimCSV(csvText);

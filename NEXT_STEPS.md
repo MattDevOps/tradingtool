@@ -41,13 +41,7 @@
 4. Build a strategy rule
 5. View the statistical analysis results
 
-### 3. Optional: Add CSV File to .gitignore
-
-The CSV file `2026-02-10-AccountStatement.csv` was committed. If it contains sensitive data:
-- It's already in `.gitignore` for future files
-- You can remove it from git history if needed (but it's already pushed)
-
-### 4. Future Enhancements (Optional)
+### 3. Future Enhancements (Optional)
 
 - Add better error messages for ThinkOrSwim format issues
 - Improve P&L calculation (use actual fees from CSV if available)

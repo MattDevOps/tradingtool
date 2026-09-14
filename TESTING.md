@@ -11,7 +11,7 @@
 
 3. **Test the upload flow:**
    - Click "Upload ThinkOrSwim CSV → Check Strategy"
-   - Upload the file: `2026-02-10-AccountStatement.csv`
+   - Upload the file: `sample-thinkorswim-statement.csv`
    - Verify it detects 157 closed trades
    - Click "Looks good → Continue"
    - Fill in rule builder (or skip optional fields)
