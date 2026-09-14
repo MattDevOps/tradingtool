@@ -29,10 +29,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Add your Neon database connection string:
-```
-DATABASE_URL=postgresql://user:password@host/database
-```
+Fill in `DATABASE_URL` (Neon connection string), `NEXTAUTH_SECRET`, and the email settings listed in `.env.example`.
 
 3. Run the development server:
 ```bash
@@ -48,15 +45,21 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   ├── page.tsx           # Landing page
 │   ├── upload/            # Upload flow
 │   ├── rule-builder/      # Strategy rule builder
-│   └── results/           # Results page
-├── components/            # React components
+│   ├── results/           # Results page
+│   ├── login/ signup/ forgot-password/ reset-password/   # Auth pages
+│   └── api/               # Route handlers
+│       ├── upload/        # CSV upload endpoint
+│       ├── analyze/       # Strategy analysis endpoint
+│       ├── strategy/      # Rule preview endpoints
+│       └── auth/          # NextAuth + password reset
 ├── lib/                   # Utilities & database
 │   ├── db.ts             # Neon DB connection
 │   ├── importer.ts       # CSV auto-inference
-│   └── stats.ts          # Statistical engine
-└── api/                   # API routes
-    ├── upload/           # CSV upload endpoint
-    └── analyze/          # Strategy analysis endpoint
+│   ├── thinkorswim-parser.ts  # ThinkOrSwim statement parser
+│   └── stats.ts          # Statistical engine (Monte Carlo / permutation)
+├── scripts/               # DB init/migrations + parser check scripts
+├── tests/                 # Playwright end-to-end tests
+└── sample-thinkorswim-statement.csv   # Synthetic statement used by the tests
 ```
 
 ## Design Documents
